@@ -1,5 +1,5 @@
 import MongoDBClient from "@/app/utils/clients/mongodb";
-import { Collection, Db, Document, OptionalId, InsertOneResult } from "mongodb";
+import { Collection, Db, Document, OptionalId, InsertOneResult, Filter, FindCursor} from "mongodb";
 
 class ApiStore {
     private database: Db | null = null;
@@ -24,6 +24,16 @@ class ApiStore {
         try {
             const collection = await this.getCollection();
             return await collection.insertOne(data);
+        } catch (error) {
+            console.error("Error inserting document:", error);
+            return null;
+        }
+    }
+
+    async search(query: Filter<Document>): Promise<FindCursor | null> {
+        try {
+            const collection = await this.getCollection();
+            return collection.find(query);
         } catch (error) {
             console.error("Error inserting document:", error);
             return null;

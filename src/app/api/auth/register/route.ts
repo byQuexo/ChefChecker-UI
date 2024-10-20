@@ -16,7 +16,7 @@ export async function POST(req: Request) {
             id: nanoid(16),
             email,
             username,
-            password, // Note: In a real application, ensure this is hashed before storing
+            password,
             favorites: [],
             preference: {
                 darkMode: "light",

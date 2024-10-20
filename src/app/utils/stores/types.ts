@@ -9,3 +9,7 @@ export type User = {
         units: "metric" | "imperial";
     };
 };
+
+export type Recipe = {
+
+}

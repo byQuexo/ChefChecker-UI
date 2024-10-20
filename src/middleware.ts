@@ -1,5 +1,9 @@
 import {jwtDecode} from "jwt-decode";
 
+export const config = {
+    matcher: '/api/:function*',
+}
+
 export async function middleware(req: Request) {
     const authHeader = req.headers.get('Authorization');
 
@@ -39,4 +43,3 @@ export async function middleware(req: Request) {
         );
     }
 }
-

@@ -42,7 +42,3 @@ export async function POST(req: Request) {
         return Response.json({ error: "Internal server error" }, { status: 500 });
     }
 }
-
-export const config = {
-    runtime: 'nodejs',
-};

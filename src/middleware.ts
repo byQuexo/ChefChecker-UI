@@ -1,4 +1,4 @@
-import {jwtDecode} from "jwt-decode";
+import {jwtDecode, JwtPayload} from "jwt-decode";
 
 export const config = {
     matcher: '/api/:function*',
@@ -20,13 +20,13 @@ export async function middleware(req: Request) {
     const token = authHeader.split(' ')[1];
 
     try {
-        const decoded = jwtDecode(token);
+        const decoded = jwtDecode<JwtPayload>(token);
 
         const evalObject = {
             email: "tim@tim.de"
         }
 
-        if(decoded != evalObject) {
+        if(JSON.stringify(decoded) !== JSON.stringify(evalObject)) {
             return Response.json({
                     message: 'Missing or invalid Authorization header' },
                 {

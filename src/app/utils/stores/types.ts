@@ -11,5 +11,11 @@ export type User = {
 };
 
 export type Recipe = {
-
+    id: string,
+    title: string,
+    ingredients: [string],
+    instructions: string,
+    category: string,
+    userId: string,
+    visibility: string
 }

@@ -1,4 +1,5 @@
-import { apiStore } from "@/app/utils/stores/apiStore";
+import {apiStore} from "@/app/utils/stores/apiStore";
+import {CollectionNames} from "@/app/utils/stores/types";
 
 export async function POST(req: Request) {
     try {
@@ -9,7 +10,7 @@ export async function POST(req: Request) {
             return Response.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        const cursor = await apiStore.search({
+        const cursor = await apiStore.search(CollectionNames.User, {
             email: email,
             password: password
         });
@@ -41,3 +42,7 @@ export async function POST(req: Request) {
         return Response.json({ error: "Internal server error" }, { status: 500 });
     }
 }
+
+export const config = {
+    runtime: 'nodejs',
+};

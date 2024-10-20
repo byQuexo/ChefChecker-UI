@@ -19,3 +19,9 @@ export type Recipe = {
     userId: string,
     visibility: string
 }
+
+export enum CollectionNames {
+    User = "User",
+    Recipe = "Recipes",
+    JWT = "JWT"
+}

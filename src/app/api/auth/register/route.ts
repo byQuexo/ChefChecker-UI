@@ -1,7 +1,7 @@
-import { User } from "@/app/utils/stores/types";
-import { apiStore } from "@/app/utils/stores/apiStore";
-import { nanoid } from "nanoid";
-import { InsertOneResult } from "mongodb";
+import {CollectionNames, User} from "@/app/utils/stores/types";
+import {apiStore} from "@/app/utils/stores/apiStore";
+import {nanoid} from "nanoid";
+import {InsertOneResult} from "mongodb";
 
 export async function POST(req: Request) {
     try {
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
             }
         };
 
-        const result = await apiStore.insertDocument(user) as InsertOneResult;
+        const result = await apiStore.insertDocument(CollectionNames.User, user) as InsertOneResult;
 
         if (result && result.acknowledged) {
             const createdUser = {

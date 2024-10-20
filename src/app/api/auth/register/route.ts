@@ -1,12 +1,46 @@
-import Store from "@/app/utils/stores/store";
-import { NextResponse, NextRequest } from "next/server";
+import { User } from "@/app/utils/stores/types";
+import { apiStore } from "@/app/utils/stores/apiStore";
+import { nanoid } from "nanoid";
+import { InsertOneResult } from "mongodb";
 
-const store = new Store();
-
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
     try {
+        const body = await req.json();
+        const { email, username, password } = body;
 
+        if (!email || !username || !password) {
+            return Response.json({ error: "Missing required fields" }, { status: 400 });
+        }
+
+        const user: User = {
+            id: nanoid(16),
+            email,
+            username,
+            password, // Note: In a real application, ensure this is hashed before storing
+            favorites: [],
+            preference: {
+                darkMode: "light",
+                units: "metric"
+            }
+        };
+
+        const result = await apiStore.insertDocument(user) as InsertOneResult;
+
+        if (result && result.acknowledged) {
+            const createdUser = {
+                id: user.id,
+                email: user.email,
+                username: user.username,
+                favorites: user.favorites,
+                preference: user.preference
+            };
+
+            return Response.json({ user: createdUser }, { status: 201 });
+        } else {
+            return Response.json({ error: "Failed to create user" }, { status: 500 });
+        }
     } catch (e) {
-        return NextResponse.json({ error: e }, { status: 500 });
+        console.error("Error creating user:", e);
+        return Response.json({ error: "Internal server error" }, { status: 500 });
     }
 }

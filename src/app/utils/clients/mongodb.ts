@@ -1,42 +1,52 @@
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import { MongoClient, ServerApiVersion, Db } from 'mongodb';
 
 if (!process.env.MONGODB_URI) {
-    throw new Error('Invalid/Missing environment variable: "MONGODB_URI"')
+    throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
 }
 
-const uri = process.env.MONGODB_URI
+const uri = process.env.MONGODB_URI;
 const options = {
-    serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-    }
-}
+    serverApi: ServerApiVersion.v1,
+    // Remove any problematic options
+};
 
 class MongoDBClient {
+    private static instance: MongoDBClient;
     private client: MongoClient | null = null;
 
-    constructor() {}
+    private constructor() {}
 
-    async connect() {
-        try {
-            this.client = new MongoClient(uri, options);
-            await this.client.connect();
-        } catch (err) {
-            throw err;
+    public static getInstance(): MongoDBClient {
+        if (!MongoDBClient.instance) {
+            MongoDBClient.instance = new MongoDBClient();
         }
+        return MongoDBClient.instance;
     }
 
-    async getDB() {
+    async connect(): Promise<void> {
         if (!this.client) {
-            throw new Error('MongoDB client is not connected');
+            try {
+                this.client = new MongoClient(uri, options);
+                await this.client.connect();
+                console.log('Connected to MongoDB');
+            } catch (err) {
+                console.error('Failed to connect to MongoDB', err);
+                throw err;
+            }
         }
-        return this.client.db();
     }
 
-    async close() {
+    async getDB(name: string): Promise<Db> {
+        if (!this.client) {
+            await this.connect();
+        }
+        return this.client!.db(name);
+    }
+
+    async close(): Promise<void> {
         if (this.client) {
             await this.client.close();
+            this.client = null;
             console.log('MongoDB connection closed');
         }
     }

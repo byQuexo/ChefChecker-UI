@@ -1,16 +1,14 @@
 'use client'
 
-import React from "react";
-import { useState } from "react";
+import React ,{ useState } from "react";
 import { Recipe } from "../stores/types";
-import { list } from "postcss";
 
 //searching for recipie based on name 
 function SearchBar(){
     const defaultArray: Recipe[] =[]
 
 //updating the state when there is a change in the search bar 
-const [searchBarResults, setsearchBarResults] = React.useState(defaultArray);
+const [searchBarResults, setsearchBarResults] = useState(defaultArray);
 
 //mapping through all of the recipes
 const allRecipies = searchBarResults.map((value, index) =>{

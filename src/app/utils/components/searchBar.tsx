@@ -9,7 +9,7 @@ function SearchBar(){
 //updating the state when there is a change in the search bar 
 const [searchBarResults, setsearchBarResults] = React.useState([]);
 
-//mapping through all of the recipes
+//mapping through all of the recipes that meet the current
 const allRecipies = searchBarResults.map(recipie =>{
     return <li key={recipie.id}>
         {recipie.title}<br></br>

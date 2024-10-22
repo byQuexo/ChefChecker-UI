@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 
 export default function Settings() {
-  // States for input
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [email, setEmail] = useState('');

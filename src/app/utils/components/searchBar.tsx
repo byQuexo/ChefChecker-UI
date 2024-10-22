@@ -2,19 +2,21 @@
 
 import React from "react";
 import { useState } from "react";
+import { Recipe } from "../stores/types";
+import { list } from "postcss";
 
 //searching for recipie based on name 
 function SearchBar(){
+    const defaultArray: Recipe[] =[]
 
 //updating the state when there is a change in the search bar 
-const [searchBarResults, setsearchBarResults] = React.useState([]);
+const [searchBarResults, setsearchBarResults] = React.useState(defaultArray);
 
 //mapping through all of the recipes
-const allRecipies = searchBarResults.map(recipie =>{
-    return <li key={recipie.id}>
-        {recipie.title}<br></br>
-        {recipie.ingredients}<br></br>
-
+const allRecipies = searchBarResults.map((value, index) =>{
+    return <li key={index}>
+        {value.title}<br></br>
+        {value.ingredients}<br></br>
     </li>
 })
 
@@ -30,11 +32,13 @@ return [
 ]
 
 //linking the search route as a GET request to display all results 
-async function showRecipies(){
-    const response  = await fetch (`http://localhost:3000/api/recipies`) //not sure if this is the right route 
+async function showRecipies():Promise<Recipe[]>{
+    const response  = await fetch (`/api/recipies`) //not sure if this is the right route 
     const allRecipies = await response.json();
     console.log(JSON.stringify(allRecipies))
     setsearchBarResults(allRecipies)
+    const listOfRecipies: Recipe[] =[]
+    return listOfRecipies
 }
 
 }

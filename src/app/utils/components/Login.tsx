@@ -39,7 +39,10 @@ export default function Login({
           className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-500">
         Login
       </button>
-      <div className="text-sm text-gray-600">Don't have an account? <a href="#" onClick={(e)=>{setIsLogin(false)}} className="font- leading-6 text-indigo-600 hover:text-indigo-500">
+      <div className="text-sm text-gray-600"> Don&apos;t have an account? <a href="#" onClick={(e)=>{
+          e.preventDefault();
+          setIsLogin(false);
+          }} className="font- leading-6 text-indigo-600 hover:text-indigo-500">
           Register now</a>
       </div>
     </form>

@@ -1,11 +1,16 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import EmailPasswordSection from '../settings/EmailPasswordSection'; // Import the new component
 
 export default function Settings() {
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [profilePicture, setProfilePicture] = useState<string | null>(null); // For storing profile picture
+  const [showPassword, setShowPassword] = useState(false); // For toggling password visibility
+
+  const fileInputRef = useRef<HTMLInputElement>(null); // Create a ref for the file input
 
   // Handlers for input changes
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -16,12 +21,26 @@ export default function Settings() {
     setBio(e.target.value);
   };
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
+  // Handler for file input change
+  const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; // Get the selected file
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePicture(reader.result as string); // Store the picture as a base64 URL for display
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
+  // Trigger file explorer when profile picture is clicked
+  const handleProfilePictureClick = () => {
+    fileInputRef.current?.click(); // Programmatically click the hidden input
+  };
+
+  // Toggle password visibility
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   // Handlers for button actions
@@ -48,79 +67,78 @@ export default function Settings() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100">
       <div className="w-full max-w-2xl bg-white shadow-lg rounded-lg mt-10 p-6">
-        <h1 className="text-2xl font-semibold mb-4 text-center">Settings</h1>
+        <h1 className="text-2xl font-semibold mb-4 text-center text-black">Settings</h1>
 
         {/* Account Settings Section */}
         <div className="border-b pb-4 mb-4">
-          <h2 className="text-xl font-semibold mb-2">Account</h2>
+          <h2 className="text-xl font-semibold mb-2 text-black">Account</h2>
 
-          {/* Name Field */}
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-1">Name</label>
-            <input
-              type="text"
-              className="w-full p-2 border rounded"
-              value={name}
-              onChange={handleNameChange}
-            />
-          </div>
+          <div className="flex justify-between items-start">
+            {/* Left Side: Name and Bio */}
+            <div className="flex-1 mr-6">
+              {/* Name Field */}
+              <div className="mb-4">
+                <label className="block mb-1 text-black">Name</label>
+                <input
+                  type="text"
+                  className="w-full p-2 border rounded text-black"
+                  value={name}
+                  onChange={handleNameChange}
+                />
+              </div>
 
-          {/* Bio Field */}
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-1">Bio</label>
-            <textarea
-              className="w-full p-2 border rounded"
-              value={bio}
-              onChange={handleBioChange}
-            />
-          </div>
+              {/* Bio Field */}
+              <div className="mb-4">
+                <label className="block mb-1 text-black">Bio</label>
+                <textarea
+                  className="w-full p-2 border rounded text-black"
+                  value={bio}
+                  onChange={handleBioChange}
+                />
+              </div>
 
-          {/* Profile Picture Upload */}
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-1">Profile Picture</label>
-            <div className="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center">
-              <span className="text-gray-500 text-2xl">📷</span>
+              {/* Save Changes Button */}
+              <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={handleSaveChanges}>
+                Save Changes
+              </button>
             </div>
-          </div>
 
-          {/* Save Changes Button */}
-          <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={handleSaveChanges}>
-            Save Changes
-          </button>
+            {/* Right Side: Profile Picture */}
+            <div className="relative w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden cursor-pointer" onClick={handleProfilePictureClick}>
+              {profilePicture ? (
+                <img src={profilePicture} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-gray-500 text-2xl"></span>
+              )}
+
+              {/* Hover Effect */}
+              <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white text-sm font-semibold">
+                Change Picture
+              </div>
+            </div>
+
+            {/* Hidden File Input */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              onChange={handleProfilePictureChange}
+              style={{ display: 'none' }} // Hide the file input
+            />
+          </div>
         </div>
 
         {/* Email and Password Section */}
-        <div className="pb-4 mb-4">
-          <h2 className="text-xl font-semibold mb-2">Email and Password</h2>
-
-          {/* Email Field */}
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-1">Email</label>
-            <input
-              type="email"
-              className="w-full p-2 border rounded"
-              value={email}
-              onChange={handleEmailChange}
-            />
-            <button className="bg-blue-500 text-white px-4 py-2 mt-2 rounded" onClick={handleUpdateEmail}>
-              Update
-            </button>
-          </div>
-
-          {/* Password Field */}
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-1">Password</label>
-            <input
-              type="password"
-              className="w-full p-2 border rounded"
-              value={password}
-              onChange={handlePasswordChange}
-            />
-            <button className="bg-blue-500 text-white px-4 py-2 mt-2 rounded" onClick={handleChangePassword}>
-              Change Password
-            </button>
-          </div>
-        </div>
+        <EmailPasswordSection
+          email={email}
+          password={password}
+          setEmail={setEmail}
+          setPassword={setPassword}
+          showPassword={showPassword}
+          togglePasswordVisibility={togglePasswordVisibility}
+          handleUpdateEmail={handleUpdateEmail}
+          handleChangePassword={handleChangePassword}
+        />
 
         {/* Back Button and Logout Link */}
         <div className="flex justify-between items-center">

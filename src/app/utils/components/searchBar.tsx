@@ -23,22 +23,23 @@ function SearchBar() {
     }
 
     return (
-            <div className="max-w-md mx-auto mt-8">
+        <div className="max-w-md mx-auto mt-8">
             <div className="relative flex items-center">
-                <input 
+                {/* search button */}
+                <button
+                    onClick={showRecipes}
+                    className="absolute left-0 px-4 py-2 text-white bg-blue-500 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <FaSearch id="search-icon" />
+                </button>
+                {/* search bar */}
+                <input
                     type="text"
-                    placeholder="e.g. 'Pizza' or 'Noodle'"
+                    placeholder="e.g. 'Pizza' or 'Noodles'"
                     id="recipeName"
                     value={recipeInput}
                     onChange={(e) => setRecipeInput(e.target.value)}
-                    className="w-full px-4 py-2 text-gray-700 bg-white border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button 
-                    onClick={showRecipes}
-                    className="absolute right-0 px-4 py-2 text-white bg-blue-500 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                    <FaSearch id="search-icon" />
-                </button>
+                    className="w-full px-20 py-2 text-gray-700 bg-white border rounded-full focus:outline-none focus:ring-1 focus:ring-grey-500"/>
+                <br/>
             </div>
             <br />
             <br></br>

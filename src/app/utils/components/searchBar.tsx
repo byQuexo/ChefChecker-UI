@@ -23,14 +23,24 @@ function SearchBar() {
     }
 
     return (
-        <div>
-            <div>
-                <button onClick={showRecipes}> <FaSearch id="search-icon" /> </button>
-                <input placeholder="  e.g.'Pizza' or 'Noodle' "
+            <div className="max-w-md mx-auto mt-8">
+            <div className="relative flex items-center">
+                <input 
+                    type="text"
+                    placeholder="e.g. 'Pizza' or 'Noodle'"
                     id="recipeName"
                     value={recipeInput}
-                    onChange={(e) => setRecipeInput(e.target.value)} />
+                    onChange={(e) => setRecipeInput(e.target.value)}
+                    className="w-full px-4 py-2 text-gray-700 bg-white border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button 
+                    onClick={showRecipes}
+                    className="absolute right-0 px-4 py-2 text-white bg-blue-500 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <FaSearch id="search-icon" />
+                </button>
             </div>
+            <br />
             <br></br>
             {/* this will be worked on with the pagination
             <div id="displayResults">

@@ -8,14 +8,14 @@ interface RegisterProps {
   setUsername: (username: string) => void;
   setEmail: (email: string) => void;
   setPassword: (password: string) => void;
-  setIsLogin: (isLogin: boolean) => void;
+  handleLoginState: (isLogin: boolean) => void;
 }
 
 export default function Register ({
   submitRegister,
   username, email, password,
   setUsername, setEmail, setPassword, 
-  setIsLogin
+  handleLoginState
   }: RegisterProps){
 
   const handleSubmit = (e: React.FormEvent) =>{
@@ -47,10 +47,7 @@ export default function Register ({
       Register
       </button>
 
-      <div className="text-sm text-gray-600">Already have an account? <a href="#" onClick={(e)=>{
-        e.preventDefault();
-        setIsLogin(true);
-        }} className="font- leading-6 text-indigo-600 hover:text-indigo-500">
+      <div className="text-sm text-gray-600">Already have an account? <a href="#" onClick={(e)=>handleLoginState(true)} className="font- leading-6 text-indigo-600 hover:text-indigo-500">
       Login Here</a>
       </div>
   </form>

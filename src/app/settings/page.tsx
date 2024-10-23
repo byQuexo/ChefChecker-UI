@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState } from 'react';
 
 export default function Settings() {
@@ -7,12 +7,50 @@ export default function Settings() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  // Handlers for input changes
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+  };
+
+  const handleBioChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setBio(e.target.value);
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+  };
+
+  // Handlers for button actions
+  const handleSaveChanges = () => {
+    console.log("Changes saved");
+  };
+
+  const handleUpdateEmail = () => {
+    console.log("Email updated");
+  };
+
+  const handleChangePassword = () => {
+    console.log("Password changed");
+  };
+
+  const handleGoBack = () => {
+    console.log("Back to previous page");
+  };
+
+  const handleLogout = () => {
+    console.log("User logged out");
+  };
+
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100">
       <div className="w-full max-w-2xl bg-white shadow-lg rounded-lg mt-10 p-6">
         <h1 className="text-2xl font-semibold mb-4 text-center">Settings</h1>
 
-        {/* Account settings Section */}
+        {/* Account Settings Section */}
         <div className="border-b pb-4 mb-4">
           <h2 className="text-xl font-semibold mb-2">Account</h2>
 
@@ -23,7 +61,7 @@ export default function Settings() {
               type="text"
               className="w-full p-2 border rounded"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={handleNameChange}
             />
           </div>
 
@@ -33,7 +71,7 @@ export default function Settings() {
             <textarea
               className="w-full p-2 border rounded"
               value={bio}
-              onChange={(e) => setBio(e.target.value)}
+              onChange={handleBioChange}
             />
           </div>
 
@@ -46,7 +84,9 @@ export default function Settings() {
           </div>
 
           {/* Save Changes Button */}
-          <button className="bg-blue-500 text-white px-4 py-2 rounded">Save Changes</button>
+          <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={handleSaveChanges}>
+            Save Changes
+          </button>
         </div>
 
         {/* Email and Password Section */}
@@ -60,9 +100,11 @@ export default function Settings() {
               type="email"
               className="w-full p-2 border rounded"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={handleEmailChange}
             />
-            <button className="bg-blue-500 text-white px-4 py-2 mt-2 rounded">Update</button>
+            <button className="bg-blue-500 text-white px-4 py-2 mt-2 rounded" onClick={handleUpdateEmail}>
+              Update
+            </button>
           </div>
 
           {/* Password Field */}
@@ -72,19 +114,24 @@ export default function Settings() {
               type="password"
               className="w-full p-2 border rounded"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={handlePasswordChange}
             />
-            <button className="bg-blue-500 text-white px-4 py-2 mt-2 rounded">Change Password</button>
+            <button className="bg-blue-500 text-white px-4 py-2 mt-2 rounded" onClick={handleChangePassword}>
+              Change Password
+            </button>
           </div>
         </div>
 
         {/* Back Button and Logout Link */}
         <div className="flex justify-between items-center">
-          <button className="bg-blue-500 text-white px-4 py-2 rounded">Back</button>
-          <button className="text-red-500">Log Out</button>
+          <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={handleGoBack}>
+            Back
+          </button>
+          <button className="text-red-500" onClick={handleLogout}>
+            Log Out
+          </button>
         </div>
       </div>
     </div>
   );
-};
-
+}

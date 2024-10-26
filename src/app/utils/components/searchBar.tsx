@@ -15,7 +15,13 @@ function SearchBar() {
 
     //linking the search route as a GET request to display all results 
     async function showRecipes(): Promise<Recipe[]> {
-        const response = await fetch(`/api/recipes`)
+        const response = await fetch(`/api/recipes`,{
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRpbUB0aW0uZGUifQ.9UhJy6wUc6RkNWsklp3av5f5hWrqmjbaYMR1tphoDwg`
+            },
+        })
         const allRecipes = await response.json();
         console.log(JSON.stringify(allRecipes))
         const listOfRecipes: Recipe[] = []

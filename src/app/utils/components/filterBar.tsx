@@ -1,50 +1,35 @@
 'use client'
-import React, { useEffect, useState } from "react";
+import React from "react";
 
-interface FilterBarProps {
-    onFilterChange: (selectedCategory: string) => void;
-}
-
-function FilterBar({onFilterChange}: FilterBarProps){
-    const [categories, setCategories] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState('');
-
-    const fetchCategories = async () => {
-        try {
-            const response = await fetch (`http://localhost:3000/api/recipies/search`)
-            return response.formData;
-        } catch (e) {
-            console.error(e);
-        }
-    };
-
-    useEffect(() => {
-        const fetchCategoriesFromDB = async () => {
-            const categoriesFromDB = await fetchCategories();
-            setCategories(categoriesFromDB);
-        };
-        fetchCategoriesFromDB();
-    }, []);
-
-    const handleCategoryClick = (category: string) => {
-        setSelectedCategory(category);
-        onFilterChange(category);
-    };
-
-    return(
-        <div>
-            <h2>Filter by Category</h2>
+function FilterBar() {
+    return (
+        <>
             <div>
-                {categories.map((category) => (
-                    <button
-                        key={category}
-                        onClick={() => handleCategoryClick(category)}
-                    >
-                        {category}
+                <div className="flex space-x-4">
+                    {/* FOR EVERY CATEGORY WHICH IS IN THE DATA BASE CREATE A BUTTON */}
+                    <button 
+                    className="w-full px-4 py-1 text-gray-700 bg-white border rounded-full focus:outline-none focus:ring-2 focus:ring-grey-500">
+                        All Recipies
                     </button>
-                ))}
+                    <button
+                    className="w-full px-4 py-1 text-gray-700 bg-white border rounded-full focus:outline-none focus:ring-2 focus:ring-grey-500">
+                        Bread
+                    </button>
+                    <button
+                    className="w-full px-4 py-1 text-gray-700 bg-white border rounded-full focus:outline-none focus:ring-2 focus:ring-grey-500">
+                        Pizza
+                    </button>
+                    <button
+                    className="w-full px-4 py-1 text-gray-700 bg-white border rounded-full focus:outline-none focus:ring-2 focus:ring-grey-500">
+                        Noodle
+                    </button>
+                    <button
+                    className="w-full px-4 py-1 text-gray-700 bg-white border rounded-full focus:outline-none focus:ring-2 focus:ring-grey-500">
+                    
+                    </button>
+                </div>
             </div>
-        </div>
+        </>
     )
 }
 

@@ -1,41 +1,65 @@
 'use client'
 
-import React from "react";
-import { useState } from "react";
+//importing modules
+import React, { useState } from "react";
+import { Recipe } from "../stores/types";
+import { FaSearch } from "react-icons/fa"
 
-//searching for recipie based on name 
-function SearchBar(){
+//function to search recipe based on name
+function SearchBar() {
+    const defaultArray: Recipe[] = []
 
-//updating the state when there is a change in the search bar 
-const [searchBarResults, setsearchBarResults] = React.useState([]);
+    //updating the state when there is a change in the search bar
+    const [recipeInput, setRecipeInput] = useState("")
+    const [searchBarResults, setsearchBarResults] = useState(defaultArray);
 
-//mapping through all of the recipes that meet the current
-const allRecipies = searchBarResults.map(recipie =>{
-    return <li key={recipie.id}>
-        {recipie.title}<br></br>
-        {recipie.ingredients}<br></br>
+    //linking the search route as a GET request to display all results 
+    async function showRecipes(): Promise<Recipe[]> {
+        const response = await fetch(`/api/recipes`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRpbUB0aW0uZGUifQ.9UhJy6wUc6RkNWsklp3av5f5hWrqmjbaYMR1tphoDwg`
+            },
+        })
+        const allRecipes = await response.json();
+        console.log(JSON.stringify(allRecipes))
+        const listOfRecipes: Recipe[] = []
+        return listOfRecipes
+    }
 
-    </li>
-})
-
-return [
-    <div>
-        <input placeholder="Recipie.." id="recipieName"/>
-        <button onClick={showRecipies}>Search</button>
-        <br></br>
-        <div id="displayResults">
-            {allRecipies}
+    return (
+        <div className="max-w-md mx-auto mt-8">
+            <div className="relative flex items-center">
+                {/* search button */}
+                <button
+                    onClick={showRecipes}
+                    className="absolute left-0 px-4 py-2 text-white bg-blue-500 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <FaSearch id="search-icon" />
+                </button>
+                {/* search bar */}
+                <input
+                    type="text"
+                    placeholder="e.g. 'Pizza' or 'Noodles'"
+                    id="recipeName"
+                    value={recipeInput}
+                    onChange={(e) => setRecipeInput(e.target.value)}
+                    className="w-full px-20 py-2 text-gray-700 bg-white border rounded-full focus:outline-none focus:ring-1 focus:ring-grey-500" />
+                <br />
+            </div>
+            <br />
+            <br></br>
+            {/* this will be worked on with the pagination
+            <div id="displayResults">
+                {searchBarResults.map((recipe, index) => (
+                    <li key={index}>
+                        {recipe.title}<br />
+                        {recipe.ingredients}<br />
+                    </li>
+                ))}
+            </div>*/}
         </div>
-    </div>
-]
-
-//linking the search route as a GET request to display all results 
-async function showRecipies(){
-    const response  = await fetch (`http://localhost:3000/api/recipies`) //not sure if this is the right route 
-    const allRecipies = await response.json();
-    console.log(JSON.stringify(allRecipies))
-    setsearchBarResults(allRecipies)
-}
+    )
 
 }
 

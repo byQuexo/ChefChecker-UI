@@ -47,7 +47,7 @@ export default function Register ({
       Register
       </button>
 
-      <div className="text-sm text-gray-600">Already have an account? <a href="#" onClick={(e)=>handleLoginState(true)} className="font- leading-6 text-indigo-600 hover:text-indigo-500">
+      <div className="text-sm text-gray-600">Already have an account? <a href="#" onClick={()=>handleLoginState(true)} className="font- leading-6 text-indigo-600 hover:text-indigo-500">
       Login Here</a>
       </div>
   </form>

@@ -1,6 +1,16 @@
+import { User } from "./types";
+
+
+interface RegisterResponse{
+    user: User;
+}
+
+interface LoginResponse{
+    user: User;
+}
 class AuthStore{
     
-    async register(username: string, email: string, password: string): Promise<any> {
+    async register(username: string, email: string, password: string): Promise<RegisterResponse | null | undefined> {
         try {
             const response = await fetch('/api/auth/register', {
                 method: "POST",
@@ -12,19 +22,19 @@ class AuthStore{
             });
             const registerData = await response.json();//convert/parse response body to JSON
 
-            if (!response.ok) {
-                
+            if (!response.ok) {                
                 console.log("failed to register", registerData.error);
+                //return {user: null, error: registerData.error}
             } else {
                 console.log (registerData.user);
+                return registerData;
             }
         } catch (error) {
-            
             console.log("error in registration:", error);
         }
     };
 
-    async login(email: string, password: string): Promise<any>{
+    async login(email: string, password: string): Promise<LoginResponse | null | undefined>{
         try {
             const response = await fetch('/api/auth/login', {
                 method: "POST",
@@ -41,9 +51,9 @@ class AuthStore{
                 console.log("failed to log in", loginData.error);
             } else {
                 console.log (loginData.user);
+                return loginData;
             }
         } catch (error) {
-            
             console.log("error in logging in:", error);
         }
     

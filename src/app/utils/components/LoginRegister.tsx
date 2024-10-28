@@ -1,6 +1,8 @@
 import React, {useState} from 'react';
 import Login from '../components/Login';
 import Register from '../components/Register';
+import { authStore } from '../stores/authStore';
+
 
 export default function LoginRegister() {
     const [isLogin, setIsLogin] = useState(true);
@@ -12,50 +14,26 @@ export default function LoginRegister() {
         setIsLogin(isLogin); 
     }
     
-    const handleRegisterSubmit = async (username:string, email:string, password:string) => {
+    
+    const handleRegisterSubmit = async ()=>{
         try{
-            const response = await fetch('/api/auth/register', {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRpbUB0aW0uZGUifQ.9UhJy6wUc6RkNWsklp3av5f5hWrqmjbaYMR1tphoDwg`
-                },
-                body: JSON.stringify({username, email, password})
-            });
-            const registerData = await response.json();
-
-            if(!response.ok){
-                console.log("failed to register", registerData.error);
-                //return;
-            }
-            console.log("register:", registerData.user);
-        } catch(error){
-            console.log("error in registration:", error);
+            const user = await authStore.register(username, email, password);
+            console.log("Registration successful:", user);
+        } catch (error){
+            console.error("an error occured during registration:", error);
         }
         
     };
-    const handleLoginSubmit = async (email:string, password:string) => {
-        try{
-            const response = await fetch('/api/auth/login', {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRpbUB0aW0uZGUifQ.9UhJy6wUc6RkNWsklp3av5f5hWrqmjbaYMR1tphoDwg`
-                },
-                body: JSON.stringify({ email, password})
-            });
-            const loginData = await response.json();
 
-            if(!response.ok){
-                console.log("failed to login", loginData.error);
-                return;
-            }
-            console.log("login:", loginData.user);
-        } catch(error){
-            console.log("error in logging in:", error);
+    const handleLoginSubmit = async () =>{
+        try{
+            const user = await authStore.login(email, password);
+            console.log("Login successful:", user);
+        } catch (error){
+            console.error("an error occured during logging in:", error);
         }
-        
-    }
+
+    };
 
     return (
         <div className='max-w-md mx-auto p-6 bg-white rounded-lg shadow-md'>

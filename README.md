@@ -32,3 +32,4 @@ To learn more about Next.js, take a look at the following resources:
 Hannah-Ann Nana-Hackman
 Manita Tamang
 David Werner
+**Tim Gühnemann**

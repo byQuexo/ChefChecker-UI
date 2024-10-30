@@ -1,4 +1,5 @@
 import { User } from "./types";
+import {getHTTP} from "@/app/utils/utils";
 
 
 interface RegisterResponse{
@@ -12,23 +13,17 @@ class AuthStore{
     
     async register(username: string, email: string, password: string): Promise<RegisterResponse | null | undefined> {
         try {
-            const response = await fetch('/api/auth/register', {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRpbUB0aW0uZGUifQ.9UhJy6wUc6RkNWsklp3av5f5hWrqmjbaYMR1tphoDwg`
-                },
-                body: JSON.stringify({ username, email, password })
-            });
+            const data = { username, email, password }
+            const response = await getHTTP().post("/api/auth/register", JSON.stringify(data));
             const registerData = await response.json();//convert/parse response body to JSON
 
             if (!response.ok) {                
                 console.log("failed to register", registerData.error);
-                //return {user: null, error: registerData.error}
-            } else {
-                console.log (registerData.user);
-                return registerData;
+                return;
             }
+
+            console.log (registerData.user);
+            return registerData;
         } catch (error) {
             console.log("error in registration:", error);
         }

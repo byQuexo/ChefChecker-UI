@@ -14,7 +14,6 @@ export async function middleware(req: Request) {
                     status: 401,
                     headers: { 
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRpbUB0aW0uZGUifQ.9UhJy6wUc6RkNWsklp3av5f5hWrqmjbaYMR1tphoDwg'
                      }
                 }
         );
@@ -35,7 +34,6 @@ export async function middleware(req: Request) {
                 {
                     status: 401,
                     headers: { 'Content-Type': 'application/json',
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRpbUB0aW0uZGUifQ.9UhJy6wUc6RkNWsklp3av5f5hWrqmjbaYMR1tphoDwg'
                      }
                 }
             );

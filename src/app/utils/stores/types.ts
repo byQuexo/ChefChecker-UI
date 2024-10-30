@@ -25,3 +25,11 @@ export enum CollectionNames {
     Recipe = "Recipes",
     JWT = "JWT"
 }
+
+export interface RegisterResponse{
+    user: User;
+}
+
+export interface LoginResponse{
+    user: User;
+}

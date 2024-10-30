@@ -18,7 +18,12 @@ export default function LoginRegister() {
     const handleRegisterSubmit = async ()=>{
         try{
             const user = await authStore.register(username, email, password);
-            console.log("Registration successful:", user);
+            if(user){
+                console.log("Registration successful:", user);
+            } else{
+                console.log("registration failed");
+            }
+            
         } catch (error){
             console.error("an error occured during registration:", error);
         }
@@ -28,7 +33,12 @@ export default function LoginRegister() {
     const handleLoginSubmit = async () =>{
         try{
             const user = await authStore.login(email, password);
-            console.log("Login successful:", user);
+            if(user){
+                console.log("Login successful:", user);
+            } else{
+                console.log("login failed");
+            }
+            
         } catch (error){
             console.error("an error occured during logging in:", error);
         }

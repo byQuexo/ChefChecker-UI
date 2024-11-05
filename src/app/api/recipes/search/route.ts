@@ -1,48 +1,88 @@
-import {apiStore} from "@/app/utils/stores/apiStore";
-import {CollectionNames} from "@/app/utils/stores/types";
-import {opt} from "ts-interface-checker";
+import { apiStore } from "@/app/utils/stores/apiStore";
+import { CollectionNames } from "@/app/utils/stores/types";
+import { Filter, Document } from "mongodb";
 
+const MAX_PAGE_SIZE = 10;
 
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { opts } = body
+        const { searchTerms, opts } = body;
 
-        if (!opts) {
-            return Response.json({ error: "Missing required fields" }, { status: 400 });
+
+        /*
+        Removed the required field for now
+            if (!opts) {
+                return Response.json({ error: "Missing required fields" }, { status: 400 });
+            }
+         */
+
+        const page = opts.page || 1;
+        const skip = (page - 1) * MAX_PAGE_SIZE;
+
+        const searchQuery: Filter<Document> = {};
+
+        if (searchTerms && searchTerms.trim()) {
+            searchQuery.$or = [
+                { title: { $regex: searchTerms, $options: 'i' } },
+            ];
         }
 
-        console.log(opts)
-
-        const getFilteredRecipes = await apiStore.search(CollectionNames.Recipe, opts);
-
-        if (!getFilteredRecipes) {
-            return Response.json({ error: "User not found" }, { status: 404 });
+        if (opts.category) {
+            searchQuery.category = opts.category;
         }
 
-        const recipes = await getFilteredRecipes.toArray();
+        if (opts.visibility) {
+            searchQuery.visibility = opts.visibility;
+        }
+
+        if (opts.userId) {
+            searchQuery.userId = opts.userId;
+        }
+
+        const countCursor = await apiStore.search(CollectionNames.Recipe, searchQuery);
+        const totalCount = countCursor ? await countCursor.count() : 0;
+
+        const recipeCursor = await apiStore.search(CollectionNames.Recipe, searchQuery);
+
+        if (!recipeCursor) {
+            return Response.json({ error: "Database error" }, { status: 500 });
+        }
+
+        const recipes = await recipeCursor
+            .sort({ title: 1 })
+            .skip(skip)
+            .limit(MAX_PAGE_SIZE)
+            .toArray();
 
         if (recipes.length === 0) {
-            return Response.json({ error: "No recipe found" }, { status: 404 });
+            return Response.json({
+                error: "No recipes found matching your criteria"
+            }, { status: 404 });
         }
 
-        const foundRecipes = [];
+        const foundRecipes = recipes.map(recipe => ({
+            id: recipe.id,
+            title: recipe.title,
+            ingredients: recipe.ingredients,
+            instructions: recipe.instructions,
+            category: recipe.category,
+            visibility: recipe.visibility,
+            userId: recipe.userId
+        }));
 
-        for (const recipe of recipes) {
-            foundRecipes.push({
-                id: recipe.id,
-                title: recipe.title,
-                ingredients: recipe.ingredients,
-                instructions: recipe.instructions,
-                category: recipe.category,
-                visibility: recipe.visibility,
-                userId: recipe.userId
-            })
-        }
+        return Response.json({
+            recipes: foundRecipes,
+            pagination: {
+                currentPage: page,
+                pageSize: MAX_PAGE_SIZE,
+                totalPages: Math.ceil(totalCount / MAX_PAGE_SIZE),
+                totalRecipes: totalCount
+            }
+        }, { status: 200 });
 
-        return Response.json({ recipes: foundRecipes }, { status: 200 });
     } catch (e) {
-        console.error("Error creating user:", e);
+        console.error("Error searching recipes:", e);
         return Response.json({ error: "Internal server error" }, { status: 500 });
     }
 }

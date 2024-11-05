@@ -5,8 +5,8 @@ interface EmailPasswordSectionProps {
   password: string;
   setEmail: (email: string) => void;
   setPassword: (password: string) => void;
-  showPassword: boolean; // Receive showPassword state as prop
-  togglePasswordVisibility: () => void; // Receive toggle function as prop
+  showPassword: boolean;
+  togglePasswordVisibility: () => void;
   handleUpdateEmail: () => void;
   handleChangePassword: () => void;
 }
@@ -34,7 +34,7 @@ const EmailPasswordSection: React.FC<EmailPasswordSectionProps> = ({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <button className="bg-blue-500 text-white px-4 py-2 mt-2 rounded" onClick={handleUpdateEmail}>
+        <button className="bg-blue-500 text-white px-4 py-2 mt-2 rounded hover:bg-blue-600" onClick={handleUpdateEmail}>
           Update
         </button>
       </div>
@@ -51,7 +51,7 @@ const EmailPasswordSection: React.FC<EmailPasswordSectionProps> = ({
         <button className="absolute right-2 top-1/2 transform -translate-y-1/2" onClick={togglePasswordVisibility}>
           {showPassword ? '👁️‍🗨️' : '👁️'}
         </button>
-        <button className="bg-blue-500 text-white px-4 py-2 mt-2 rounded" onClick={handleChangePassword}>
+        <button className="bg-blue-500 text-white px-4 py-2 mt-2 rounded hover:bg-blue-600" onClick={handleChangePassword}>
           Change Password
         </button>
       </div>

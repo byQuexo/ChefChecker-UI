@@ -3,10 +3,10 @@ import React, { useState, useRef } from 'react';
 import EmailPasswordSection from '../settings/EmailPasswordSection'; // Import the new component
 
 export default function Settings() {
-  const [name, setName] = useState('');
-  const [bio, setBio] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState('Test');
+  const [bio, setBio] = useState('This is the Bio');
+  const [email, setEmail] = useState('Test@email.ac.uk');
+  const [password, setPassword] = useState('12345');
   const [profilePicture, setProfilePicture] = useState<string | null>(null); // For storing profile picture
   const [showPassword, setShowPassword] = useState(false); // For toggling password visibility
 
@@ -98,7 +98,7 @@ export default function Settings() {
               </div>
 
               {/* Save Changes Button */}
-              <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={handleSaveChanges}>
+              <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={handleSaveChanges}>
                 Save Changes
               </button>
             </div>
@@ -142,7 +142,7 @@ export default function Settings() {
 
         {/* Back Button and Logout Link */}
         <div className="flex justify-between items-center">
-          <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={handleGoBack}>
+          <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={handleGoBack}>
             Back
           </button>
           <button className="text-red-500" onClick={handleLogout}>

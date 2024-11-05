@@ -1,14 +1,14 @@
 "use client";
 import React, { useState, useRef } from 'react';
-import EmailPasswordSection from '../settings/EmailPasswordSection'; // Import the new component
+import EmailPasswordSection from '../settings/EmailPasswordSection';
 
 export default function Settings() {
   const [name, setName] = useState('Test');
   const [bio, setBio] = useState('This is the Bio');
   const [email, setEmail] = useState('Test@email.ac.uk');
   const [password, setPassword] = useState('12345');
-  const [profilePicture, setProfilePicture] = useState<string | null>(null); // For storing profile picture
-  const [showPassword, setShowPassword] = useState(false); // For toggling password visibility
+  const [profilePicture, setProfilePicture] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null); // Create a ref for the file input
 
@@ -92,6 +92,7 @@ export default function Settings() {
                 <label className="block mb-1 text-black">Bio</label>
                 <textarea
                   className="w-full p-2 border rounded text-black"
+                  maxLength={200}
                   value={bio}
                   onChange={handleBioChange}
                 />

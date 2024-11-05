@@ -17,6 +17,7 @@ export async function POST(req: Request) {
             email,
             username,
             password,
+            bio: "",
             favorites: [],
             preference: {
                 darkMode: "light",

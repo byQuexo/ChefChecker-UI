@@ -16,7 +16,7 @@ class ApiStore {
         return this.database;
     }
 
-    private async getCollection(collectionName: CollectionNames): Promise<Collection> {
+    public async getCollection(collectionName: CollectionNames): Promise<Collection> {
         const db = await this.getDatabase();
         return db.collection(collectionName);
     }

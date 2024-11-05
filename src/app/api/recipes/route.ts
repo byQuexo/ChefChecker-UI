@@ -10,11 +10,11 @@ export async function GET(req: Request) {
         const page = parseInt(url.searchParams.get('page') || '1');
 
         const searchQuery: Filter<Document> = {
-            visibility: "public"
+            visibility: "public",
         };
 
-        const countCursor = await apiStore.search(CollectionNames.Recipe, searchQuery);
-        const totalCount = countCursor ? await countCursor.count() : 0;
+        const collection = await apiStore.getCollection(CollectionNames.Recipe);
+        const totalCount = await collection.countDocuments(searchQuery);
 
         const recipeCursor = await apiStore.search(CollectionNames.Recipe, searchQuery);
 
@@ -23,7 +23,7 @@ export async function GET(req: Request) {
         }
 
         const recipes = await recipeCursor
-            .sort({ title: 1 }) // Sort alphabetically by title
+            .sort({ title: 1 })
             .skip((page - 1) * MAX_PAGE_SIZE)
             .limit(MAX_PAGE_SIZE)
             .toArray();

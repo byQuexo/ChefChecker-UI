@@ -40,8 +40,8 @@ export async function POST(req: Request) {
             searchQuery.userId = opts.userId;
         }
 
-        const countCursor = await apiStore.search(CollectionNames.Recipe, searchQuery);
-        const totalCount = countCursor ? await countCursor.count() : 0;
+        const collection = await apiStore.getCollection(CollectionNames.Recipe);
+        const totalCount = await collection.countDocuments(searchQuery);
 
         const recipeCursor = await apiStore.search(CollectionNames.Recipe, searchQuery);
 

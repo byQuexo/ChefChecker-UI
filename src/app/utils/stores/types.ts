@@ -3,6 +3,7 @@ export type User = {
     email: string;
     username: string;
     password: string;
+    bio: string,
     favorites: { recipeId: string; }[];
     preference: {
         darkMode: "light" | "dark";

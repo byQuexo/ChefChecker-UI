@@ -7,8 +7,12 @@ export default function Home() {
   return (
     <>
     <div>
-      <h1> Chef Checker </h1>
+      {/* Top navigation Bar */}
+      <div className="flex justify-center">
+      <img src={require("./utils/assets/Logo.png")} className="text-left" alt="ChefCheckerLogo" height="200" />
       <SearchBar/>
+      {/**/}
+      </div>
       <FilterBar/>
       {/*comment <LoginRegister/> */}
     </div>

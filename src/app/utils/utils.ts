@@ -5,7 +5,7 @@ if (!TOKEN) {
 
 export const getHTTP = () => {
     return {
-        post: async (url: string, data: string | Record<string, any>) => {
+        post: async (url: string, data: string | Record<string, never>) => {
             if (!TOKEN) {
                 throw new Error('No authorization token available');
             }

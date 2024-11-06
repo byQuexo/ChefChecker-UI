@@ -19,6 +19,7 @@ export async function POST(req: Request) {
             password,
             bio: "",
             favorites: [],
+            profileImage: "",
             preference: {
                 darkMode: "light",
                 units: "metric"

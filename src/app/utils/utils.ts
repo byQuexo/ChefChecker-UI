@@ -1,31 +1,31 @@
-const TOKEN = process.env.API_AUTHENTICATION_TOKEN; 
+import axios from 'axios';
+
+const TOKEN = process.env.API_AUTHENTICATION_TOKEN;
+
+const axiosInstance = axios.create({
+    baseURL: 'https://localhost:3000',
+    headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${TOKEN}`,
+        },
+});
 
 export const getHTTP = () => {
+
     return {
-        post: async (url: string, data: string) => {
+        axios: axiosInstance,
+        post: async (url: string, data: object) => {
             console.log("token used:", TOKEN);
-            const response = await fetch(url, {
-                method: "POST",
-                body: data,
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${TOKEN}`,
-                },
-            });
-            return response;
+            const response = await axiosInstance.post(url, data);
+            return response.data;
+            
         },
 
-
-        //GET methods
-        get: async (url: string) => {
+        //GET nethods
+        get: async (url: string): Promise<Response | null> => {
             console.log("token used:", TOKEN);
-            const response = await fetch(url, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${TOKEN}`,
-                },
-            });
-            return response;
+            const response = await axiosInstance.get(url);
+            return null;
             
         }
     }

@@ -3,14 +3,15 @@ import React, { useState, useRef } from 'react';
 import EmailPasswordSection from '../settings/EmailPasswordSection';
 
 export default function Settings() {
-  const [name, setName] = useState('Test');
-  const [bio, setBio] = useState('This is the Bio');
-  const [email, setEmail] = useState('Test@email.ac.uk');
-  const [password, setPassword] = useState('12345');
+  // State initialization with empty values instead of static ones
+  const [name, setName] = useState('');
+  const [bio, setBio] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  const fileInputRef = useRef<HTMLInputElement>(null); // Create a ref for the file input
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Handlers for input changes
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -21,31 +22,28 @@ export default function Settings() {
     setBio(e.target.value);
   };
 
-  // Handler for file input change
   const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]; // Get the selected file
+    const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfilePicture(reader.result as string); // Store the picture as a base64 URL for display
+        setProfilePicture(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  // Trigger file explorer when profile picture is clicked
   const handleProfilePictureClick = () => {
-    fileInputRef.current?.click(); // Programmatically click the hidden input
+    fileInputRef.current?.click();
   };
 
-  // Toggle password visibility
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  // Handlers for button actions
   const handleSaveChanges = () => {
     console.log("Changes saved");
+    // Here you can also add a function to save data to your database or API.
   };
 
   const handleUpdateEmail = () => {
@@ -65,7 +63,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gray-100">
+    <div className="flex flex-col items-center min-h-screen bg-amber-50">
       <div className="w-full max-w-2xl bg-white shadow-lg rounded-lg mt-10 p-6">
         <h1 className="text-2xl font-semibold mb-4 text-center text-black">Settings</h1>
 
@@ -74,9 +72,7 @@ export default function Settings() {
           <h2 className="text-xl font-semibold mb-2 text-black">Account</h2>
 
           <div className="flex justify-between items-start">
-            {/* Left Side: Name and Bio */}
             <div className="flex-1 mr-6">
-              {/* Name Field */}
               <div className="mb-4">
                 <label className="block mb-1 text-black">Name</label>
                 <input
@@ -87,7 +83,6 @@ export default function Settings() {
                 />
               </div>
 
-              {/* Bio Field */}
               <div className="mb-4">
                 <label className="block mb-1 text-black">Bio</label>
                 <textarea
@@ -98,38 +93,31 @@ export default function Settings() {
                 />
               </div>
 
-              {/* Save Changes Button */}
               <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={handleSaveChanges}>
                 Save Changes
               </button>
             </div>
 
-            {/* Right Side: Profile Picture */}
             <div className="relative w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden cursor-pointer" onClick={handleProfilePictureClick}>
               {profilePicture ? (
                 <img src={profilePicture} alt="Profile" className="w-full h-full object-cover" />
               ) : (
                 <span className="text-gray-500 text-2xl"></span>
               )}
-
-              {/* Hover Effect */}
               <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white text-sm font-semibold">
                 Change Picture
               </div>
             </div>
-
-            {/* Hidden File Input */}
             <input
               type="file"
               ref={fileInputRef}
               accept="image/*"
               onChange={handleProfilePictureChange}
-              style={{ display: 'none' }} // Hide the file input
+              style={{ display: 'none' }}
             />
           </div>
         </div>
 
-        {/* Email and Password Section */}
         <EmailPasswordSection
           email={email}
           password={password}
@@ -141,7 +129,6 @@ export default function Settings() {
           handleChangePassword={handleChangePassword}
         />
 
-        {/* Back Button and Logout Link */}
         <div className="flex justify-between items-center">
           <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={handleGoBack}>
             Back

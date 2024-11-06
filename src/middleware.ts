@@ -1,10 +1,26 @@
 import {jwtDecode, JwtPayload} from "jwt-decode";
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
 export const config = {
     matcher: '/api/:function*',
 }
 
-export async function middleware(req: Request) {
+export async function middleware(req: NextRequest) {
+
+    if (req.nextUrl.pathname.startsWith('/api/')) {
+        const requestHeaders = new Headers(req.headers)
+        requestHeaders.set('Authorization', `Bearer ${process.env.CLIENT_TOKEN}`)
+
+        return NextResponse.next({
+            request: {
+                headers: requestHeaders,
+            },
+        })
+    }
+
+
+
     const authHeader = req.headers.get('Authorization');
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

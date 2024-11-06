@@ -1,32 +1,38 @@
-const TOKEN = process.env.API_AUTHENTICATION_TOKEN; 
+const TOKEN = process.env.NEXT_PUBLIC_CLIENT_TOKEN
+if (!TOKEN) {
+    throw new Error('CLIENT_TOKEN environment variable is not set');
+}
 
 export const getHTTP = () => {
     return {
-        post: async (url: string, data: string) => {
-            console.log("token used:", TOKEN);
-            const response = await fetch(url, {
+        post: async (url: string, data: string | Record<string, any>) => {
+            if (!TOKEN) {
+                throw new Error('No authorization token available');
+            }
+
+            const bodyData = typeof data === 'string' ? data : JSON.stringify(data);
+
+            return await fetch(url, {
                 method: "POST",
-                body: data,
+                body: bodyData,
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${TOKEN}`,
                 },
             });
-            return response;
         },
 
-
-        //GET methods
         get: async (url: string) => {
-            console.log("token used:", TOKEN);
-            const response = await fetch(url, {
+            if (!TOKEN) {
+                throw new Error('No authorization token available');
+            }
+
+            return await fetch(url, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${TOKEN}`,
                 },
             });
-            return response;
-            
         }
     }
-};
+}

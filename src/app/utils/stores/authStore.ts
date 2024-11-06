@@ -11,8 +11,8 @@ class AuthStore{
                     console.log("registration failed", response.status);
                     return null;
                 }
-                const registerData = response.data;
-                console.log (registerData.user);    
+                const registerData = await response.json();
+                console.log (registerData.user);
                 return registerData.user;
     
             } catch (error) {
@@ -29,8 +29,8 @@ class AuthStore{
                     console.log("login failed", response.status);
                     return null;
                 }
-                const loginData = response.data;
-                console.log (loginData.user); 
+                const loginData = await response.json();
+                console.log (loginData.user);
                 return loginData.user;           
                     
             } catch (error) {

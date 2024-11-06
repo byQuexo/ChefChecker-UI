@@ -5,6 +5,7 @@ export type User = {
     password: string;
     bio: string,
     favorites: { recipeId: string; }[];
+    profileImage: string,
     preference: {
         darkMode: "light" | "dark";
         units: "metric" | "imperial";

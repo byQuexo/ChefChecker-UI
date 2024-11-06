@@ -1,11 +1,15 @@
+// app/api/user/[userId]/route.ts
+
 import { apiStore } from "@/app/utils/stores/apiStore";
 import { CollectionNames } from "@/app/utils/stores/types";
 import { Filter, Document } from "mongodb";
 
-export async function GET(req: Request) {
+export async function GET(
+    req: Request,
+    { params }: { params: { userId: string } }
+) {
     try {
-        const url = new URL(req.url);
-        const userId = url.searchParams.get('userId');
+        const userId = params.userId;
 
         if (!userId) {
             return Response.json({ error: "Missing userId parameter" }, { status: 400 });

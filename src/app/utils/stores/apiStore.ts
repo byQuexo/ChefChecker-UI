@@ -1,5 +1,5 @@
 import MongoDBClient from "@/app/utils/clients/mongodb";
-import { Collection, Db, Document, OptionalId, InsertOneResult, Filter, FindCursor} from "mongodb";
+import { Collection, Db, Document, OptionalId, InsertOneResult, Filter, FindCursor, DeleteResult} from "mongodb";
 import { CollectionNames } from "@/app/utils/stores/types";
 
 
@@ -39,6 +39,16 @@ class ApiStore {
             return collection.find(query);
         } catch (error) {
             console.error("Error inserting document:", error);
+            return null;
+        }
+    }
+
+    async deleteDocument(collectionName: CollectionNames, query: Filter<Document>): Promise<DeleteResult | null> {
+        try {
+            const collection = await this.getCollection(collectionName);
+            return await collection.deleteOne(query);
+        } catch (error) {
+            console.error("Error deleting document:", error);
             return null;
         }
     }

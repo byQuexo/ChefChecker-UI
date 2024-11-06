@@ -4,7 +4,7 @@ import { CollectionNames, User } from "@/app/utils/stores/types";
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { username, bio, password, userId } = body;
+        const { profileImage, username, bio, password, userId } = body;
 
         if (!userId) {
             return Response.json({ error: "Missing required userId" }, { status: 400 });
@@ -22,6 +22,15 @@ export async function POST(req: Request) {
 
         if (password !== undefined) {
             updateData.password = password; // Note: In production, password should be hashed
+        }
+
+        if (profileImage !== undefined) {
+            if (profileImage && !profileImage.startsWith('data:image/')) {
+                return Response.json({
+                    error: "Invalid image format"
+                }, { status: 400 });
+            }
+            updateData.profileImage = profileImage;
         }
 
         const collection = await apiStore.getCollection(CollectionNames.User);
@@ -45,10 +54,18 @@ export async function POST(req: Request) {
             return Response.json({ error: "Error retrieving updated user" }, { status: 500 });
         }
 
-        return Response.json(
-            { message: "User updated successfully" },
-            { status: 200 }
-        );
+        const sanitizedUser = {
+            id: updatedUser.id,
+            username: updatedUser.username,
+            bio: updatedUser.bio,
+            profileImage: updatedUser.profileImage,
+            favorites: updatedUser.favorites,
+            preference: updatedUser.preference
+        };
+
+        return Response.json({
+            user: sanitizedUser
+        }, { status: 200 });
 
     } catch (e) {
         console.error("Error updating user:", e);

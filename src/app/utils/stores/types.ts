@@ -3,7 +3,9 @@ export type User = {
     email: string;
     username: string;
     password: string;
+    bio: string,
     favorites: { recipeId: string; }[];
+    profileImage: string,
     preference: {
         darkMode: "light" | "dark";
         units: "metric" | "imperial";
@@ -24,4 +26,12 @@ export enum CollectionNames {
     User = "User",
     Recipe = "Recipes",
     JWT = "JWT"
+}
+
+export interface RegisterResponse{
+    user: User;
+}
+
+export interface LoginResponse{
+    user: User;
 }

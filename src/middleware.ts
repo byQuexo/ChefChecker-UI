@@ -12,7 +12,9 @@ export async function middleware(req: Request) {
                 message: 'Missing or invalid Authorization header' },
                 {
                     status: 401,
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: { 
+                        'Content-Type': 'application/json',
+                     }
                 }
         );
     }
@@ -31,7 +33,8 @@ export async function middleware(req: Request) {
                     message: 'Missing or invalid Authorization header' },
                 {
                     status: 401,
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: { 'Content-Type': 'application/json',
+                     }
                 }
             );
         }

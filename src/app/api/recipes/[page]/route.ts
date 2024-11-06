@@ -4,10 +4,11 @@ import { Filter, Document } from "mongodb";
 
 const MAX_PAGE_SIZE = 10;
 
-export async function GET(req: Request) {
+export async function GET(
+    req: Request,
+    { params }: { params: { page: string } }) {
     try {
-        const url = new URL(req.url);
-        const page = parseInt(url.searchParams.get('page') || '1');
+        const page = parseInt(params.page);
 
         const searchQuery: Filter<Document> = {
             visibility: "public",

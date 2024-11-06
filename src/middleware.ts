@@ -20,7 +20,6 @@ export async function middleware(req: NextRequest) {
     }
 
 
-
     const authHeader = req.headers.get('Authorization');
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

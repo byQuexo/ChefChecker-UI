@@ -1,5 +1,3 @@
-// app/api/user/[userId]/route.ts
-
 import { apiStore } from "@/app/utils/stores/apiStore";
 import { CollectionNames } from "@/app/utils/stores/types";
 import { Filter, Document } from "mongodb";
@@ -34,6 +32,7 @@ export async function GET(
             email: user.email,
             favorites: user.favorites,
             preference: user.preference,
+            profileImage: user.profileImage,
             bio: user.bio
         };
 

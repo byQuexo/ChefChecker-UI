@@ -2,13 +2,14 @@ import React, {useState} from 'react';
 import Login from '../components/Login';
 import Register from '../components/Register';
 import { authStore } from '../stores/authStore';
-
+import { useRouter } from 'next/navigation';
 
 export default function LoginRegister() {
     const [isLogin, setIsLogin] = useState(true);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const router = useRouter();
 
     const handleLoginState = (isLogin: boolean)=>{
         setIsLogin(isLogin); 
@@ -19,7 +20,8 @@ export default function LoginRegister() {
         try{
             const user = await authStore.register(username, email, password);
             if(user){
-                console.log("Registration successful:", user);
+                
+                router.push('/');
             } else{
                 console.log("registration failed");
             }
@@ -34,7 +36,8 @@ export default function LoginRegister() {
         try{
             const user = await authStore.login(email, password);
             if(user){
-                console.log("Login successful:", user);
+                
+                router.push('/')
             } else{
                 console.log("login failed");
             }

@@ -6,20 +6,30 @@ import {InsertOneResult} from "mongodb";
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { title, ingredients, instructions, category, visibility, userId } = body
+        const { title, ingredients, recipeImage, instructions, category, visibility, userId } = body
 
         if (!title || !ingredients || !instructions || !category || !visibility || !userId) {
             return Response.json({ error: "Missing required fields" }, { status: 400 });
         }
 
+        if (recipeImage !== undefined) {
+            if (recipeImage && !recipeImage.startsWith('data:image/')) {
+                return Response.json({
+                    error: "Invalid image format"
+                }, { status: 400 });
+            }
+        }
+
         const recipe: Recipe = {
             id: nanoid(32),
             title,
+            recipeImage: recipeImage,
             ingredients,
             instructions,
             category,
             userId,
-            visibility
+            visibility,
+            comments: []
         }
 
         const checkIfUserExists = await apiStore.search(CollectionNames.User, {
@@ -37,11 +47,13 @@ export async function POST(req: Request) {
             const createdRecipe: Recipe = {
                 id: recipe.id,
                 title: recipe.title,
+                recipeImage: recipe.recipeImage,
                 ingredients: recipe.ingredients,
                 instructions: recipe.instructions,
                 category: recipe.category,
                 visibility: recipe.visibility,
-                userId: recipe.userId
+                userId: recipe.userId,
+                comments: recipe.comments
             }
 
             return Response.json({recipe: createdRecipe}, {status: 201});

@@ -1,7 +1,7 @@
 import { apiStore } from "@/app/utils/stores/apiStore";
 import { CollectionNames } from "@/app/utils/stores/types";
 
-export async function GET(req: Request) {
+export async function GET() {
     try {
         const collection = await apiStore.getCollection(CollectionNames.Recipe);
 

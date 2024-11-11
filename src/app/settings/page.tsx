@@ -1,9 +1,12 @@
 "use client";
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import EmailPasswordSection from '../settings/EmailPasswordSection';
 
-export default function Settings() {
-  // State initialization with empty values instead of static ones
+interface SettingsProps {
+  userId?: string;
+}
+
+const Settings: React.FC<SettingsProps> = ({ userId = "0a4c9961-b2fd-4eb9-a087-2216eb3008ea" }) => {
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [email, setEmail] = useState('');
@@ -13,61 +16,86 @@ export default function Settings() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Handlers for input changes
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
+  // Load user data on component mount if userId is available
+  useEffect(() => {
+    if (userId) {
+      fetchUserData(userId);
+    }
+  }, [userId]);
+
+  // Function to fetch user data
+  const fetchUserData = async (userId: string) => {
+      try {
+          const response = await fetch(`/api/users/${userId}`);
+            if (response.ok) {
+              const data = await response.json();
+
+              // Access user data
+              const userData = data.user;
+
+              // Populate form with fetched user data
+              setName(userData.username || '');
+              setBio(userData.bio || '');
+              setEmail(userData.email || '');
+              setPassword(userData.password || '');
+              setProfilePicture(userData.profileImage || null);
+          } else {
+              console.error("Failed to fetch user data", response.status);
+          }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
   };
 
-  const handleBioChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setBio(e.target.value);
-  };
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value);
+  const handleBioChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setBio(e.target.value);
+  const handleProfilePictureClick = () => fileInputRef.current?.click();
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
   const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfilePicture(reader.result as string);
-      };
+      reader.onloadend = () => setProfilePicture(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
 
-  const handleProfilePictureClick = () => {
-    fileInputRef.current?.click();
+  const handleSaveChanges = async () => {
+    try {
+      const response = await fetch('/api/users/preferences', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          username: name,
+          bio,
+          email,
+          password,
+          profileImage: profilePicture || "",
+        }),
+      });
+
+      if (response.ok) {
+        console.log("Profile updated successfully");
+      } else {
+        console.error("Failed to update profile", response.status);
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
   };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const handleSaveChanges = () => {
-    console.log("Changes saved");
-    // Here you can also add a function to save data to your database or API.
-  };
-
-  const handleUpdateEmail = () => {
-    console.log("Email updated");
-  };
-
-  const handleChangePassword = () => {
-    console.log("Password changed");
-  };
-
-  const handleGoBack = () => {
-    console.log("Back to previous page");
-  };
-
-  const handleLogout = () => {
-    console.log("User logged out");
-  };
+  const handleGoBack = () => console.log("Back to previous page");
+  const handleLogout = () => console.log("User logged out");
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-amber-50">
+    <div className="flex flex-col items-center min-h-screen bg-gray-700">
       <div className="w-full max-w-2xl bg-white shadow-lg rounded-lg mt-10 p-6">
         <h1 className="text-2xl font-semibold mb-4 text-center text-black">Settings</h1>
 
-        {/* Account Settings Section */}
         <div className="border-b pb-4 mb-4">
           <h2 className="text-xl font-semibold mb-2 text-black">Account</h2>
 
@@ -93,12 +121,18 @@ export default function Settings() {
                 />
               </div>
 
-              <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={handleSaveChanges}>
+              <button
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                onClick={handleSaveChanges}
+              >
                 Save Changes
               </button>
             </div>
 
-            <div className="relative w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden cursor-pointer" onClick={handleProfilePictureClick}>
+            <div
+              className="relative w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden cursor-pointer"
+              onClick={handleProfilePictureClick}
+            >
               {profilePicture ? (
                 <img src={profilePicture} alt="Profile" className="w-full h-full object-cover" />
               ) : (
@@ -125,8 +159,8 @@ export default function Settings() {
           setPassword={setPassword}
           showPassword={showPassword}
           togglePasswordVisibility={togglePasswordVisibility}
-          handleUpdateEmail={handleUpdateEmail}
-          handleChangePassword={handleChangePassword}
+          handleUpdateEmail={handleSaveChanges}
+          handleChangePassword={handleSaveChanges}
         />
 
         <div className="flex justify-between items-center">
@@ -141,3 +175,5 @@ export default function Settings() {
     </div>
   );
 }
+
+export default Settings;

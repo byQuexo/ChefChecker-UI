@@ -7,7 +7,6 @@ interface EmailPasswordSectionProps {
   setPassword: (password: string) => void;
   showPassword: boolean;
   togglePasswordVisibility: () => void;
-  handleUpdateEmail: () => void;
   handleChangePassword: () => void;
 }
 
@@ -18,7 +17,6 @@ const EmailPasswordSection: React.FC<EmailPasswordSectionProps> = ({
   setPassword,
   showPassword,
   togglePasswordVisibility,
-  handleUpdateEmail,
   handleChangePassword,
 }) => {
   return (
@@ -31,12 +29,13 @@ const EmailPasswordSection: React.FC<EmailPasswordSectionProps> = ({
         <input
           type="email"
           className="w-full p-2 border rounded text-black"
+          disabled={true}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <button className="bg-blue-500 text-white px-4 py-2 mt-2 rounded hover:bg-blue-600" onClick={handleUpdateEmail}>
+        {/*<button className="bg-blue-500 text-white px-4 py-2 mt-2 rounded hover:bg-blue-600" onClick={handleUpdateEmail}>
           Update
-        </button>
+        </button>*/}
       </div>
 
       {/* Password Field with Visibility Toggle */}

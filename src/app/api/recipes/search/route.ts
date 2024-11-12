@@ -2,7 +2,7 @@ import { apiStore } from "@/app/utils/stores/apiStore";
 import { CollectionNames } from "@/app/utils/stores/types";
 import { Filter, Document } from "mongodb";
 
-const MAX_PAGE_SIZE = 10;
+const MAX_PAGE_SIZE = 8;
 
 export async function POST(req: Request) {
     try {
@@ -75,6 +75,7 @@ export async function POST(req: Request) {
         const foundRecipes = recipes.map(recipe => ({
             id: recipe.id,
             title: recipe.title,
+            recipeImage: recipe.recipeImage,
             ingredients: recipe.ingredients,
             instructions: recipe.instructions,
             category: recipe.category,
@@ -105,7 +106,9 @@ export async function GET(req: Request) {
         const { searchParams } = new URL(req.url);
         const page = parseInt(searchParams.get('page') || '1');
 
-        const searchQuery: Filter<Document> = {};
+        const searchQuery: Filter<Document> = {
+            visibility: "public"
+        };
 
         const collection = await apiStore.getCollection(CollectionNames.Recipe);
         const totalCount = await collection.countDocuments(searchQuery);
@@ -121,6 +124,7 @@ export async function GET(req: Request) {
             recipes: recipes.map(recipe => ({
                 id: recipe.id,
                 title: recipe.title,
+                recipeImage: recipe.recipeImage,
                 ingredients: recipe.ingredients,
                 instructions: recipe.instructions,
                 category: recipe.category,

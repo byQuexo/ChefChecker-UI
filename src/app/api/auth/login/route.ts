@@ -30,6 +30,7 @@ export async function POST(req: Request) {
         const returnedUser = {
             id: user.id,
             email: user.email,
+            profileImage: user.profileImage,
             username: user.username,
             password: user.password,
             favorites: user.favorites,

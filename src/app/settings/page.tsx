@@ -1,12 +1,15 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import EmailPasswordSection from '../settings/EmailPasswordSection';
+import { getHTTP } from '../utils/utils';
 
 interface SettingsProps {
   userId?: string;
 }
 
-const Settings: React.FC<SettingsProps> = ({ userId = "0a4c9961-b2fd-4eb9-a087-2216eb3008ea" }) => {
+const user_id = "0a4c9961-b2fd-4eb9-a087-2216eb3008ea";
+
+const Settings: React.FC<SettingsProps> = ({ userId = user_id }) => {
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [email, setEmail] = useState('');
@@ -16,35 +19,32 @@ const Settings: React.FC<SettingsProps> = ({ userId = "0a4c9961-b2fd-4eb9-a087-2
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load user data on component mount if userId is available
   useEffect(() => {
     if (userId) {
       fetchUserData(userId);
     }
   }, [userId]);
 
-  // Function to fetch user data
+  // fetching user data
   const fetchUserData = async (userId: string) => {
-      try {
-          const response = await fetch(`/api/users/${userId}`);
-            if (response.ok) {
-              const data = await response.json();
+    try {
+      const response = await getHTTP().get(`/api/users/${userId}`);
+      if (response.ok) {
+        const data = await response.json();
+        const userData = data.user;
 
-              // Access user data
-              const userData = data.user;
-
-              // Populate form with fetched user data
-              setName(userData.username || '');
-              setBio(userData.bio || '');
-              setEmail(userData.email || '');
-              setPassword(userData.password || '');
-              setProfilePicture(userData.profileImage || null);
-          } else {
-              console.error("Failed to fetch user data", response.status);
-          }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+        // Populate form with fetched user data
+        setName(userData.username || '');
+        setBio(userData.bio || '');
+        setEmail(userData.email || '');
+        setPassword(userData.password || '');
+        setProfilePicture(userData.profileImage || null);
+      } else {
+        console.error("Failed to fetch user data", response.status);
       }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value);
@@ -63,19 +63,13 @@ const Settings: React.FC<SettingsProps> = ({ userId = "0a4c9961-b2fd-4eb9-a087-2
 
   const handleSaveChanges = async () => {
     try {
-      const response = await fetch('/api/users/preferences', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-          username: name,
-          bio,
-          email,
-          password,
-          profileImage: profilePicture || "",
-        }),
+      const response = await getHTTP().post('/api/users/preferences', {
+        userId,
+        username: name,
+        bio,
+        email,
+        password,
+        profileImage: profilePicture || "",
       });
 
       if (response.ok) {
@@ -159,7 +153,6 @@ const Settings: React.FC<SettingsProps> = ({ userId = "0a4c9961-b2fd-4eb9-a087-2
           setPassword={setPassword}
           showPassword={showPassword}
           togglePasswordVisibility={togglePasswordVisibility}
-          handleUpdateEmail={handleSaveChanges}
           handleChangePassword={handleSaveChanges}
         />
 
@@ -174,6 +167,6 @@ const Settings: React.FC<SettingsProps> = ({ userId = "0a4c9961-b2fd-4eb9-a087-2
       </div>
     </div>
   );
-}
+};
 
 export default Settings;

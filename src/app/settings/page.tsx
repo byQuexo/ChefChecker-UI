@@ -7,9 +7,10 @@ interface SettingsProps {
   userId?: string;
 }
 
-const user_id = "0a4c9961-b2fd-4eb9-a087-2216eb3008ea";
 
-const Settings: React.FC<SettingsProps> = ({ userId = user_id }) => {
+const user_Id = "0a4c9961-b2fd-4eb9-a087-2216eb3008ea";
+
+const Settings: React.FC<SettingsProps> = ({ userId = user_Id }) => {
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [email, setEmail] = useState('');

@@ -1,6 +1,6 @@
 {
   "name": "chef-checker",
-  "version": "0.1.0",
+  "version": "0.4.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "jwt-decode": "^4.0.0",
+    "lucide-react": "^0.456.0",
     "mobx": "^6.13.5",
+    "mobx-react-lite": "^4.0.7",
     "mongodb": "^6.9.0",
     "nanoid": "^5.0.7",
     "next": "14.2.13",

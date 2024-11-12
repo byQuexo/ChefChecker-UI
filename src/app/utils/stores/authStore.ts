@@ -7,13 +7,15 @@ class AuthStore{
                 const data = {username, email, password}           
                 const response = await getHTTP().post('/api/auth/register', data);
                 
-                if (response.status !== 200){
+                if (response.status !== 201){
                     console.log("registration failed", response.status);
                     return null;
                 }
                 const registerData = await response.json();
-                console.log (registerData.user);
-                return registerData.user;
+                return {
+                    user: registerData.user
+                };
+
     
             } catch (error) {
                 console.log("error in registration:", error);
@@ -30,8 +32,9 @@ class AuthStore{
                     return null;
                 }
                 const loginData = await response.json();
-                console.log (loginData.user);
-                return loginData.user;           
+                return {
+                    user: loginData.user
+                };
                     
             } catch (error) {
                 console.log("error in logging in:", error);

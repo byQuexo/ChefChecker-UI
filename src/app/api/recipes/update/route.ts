@@ -2,10 +2,10 @@ import { apiStore } from "@/app/utils/stores/apiStore";
 import { CollectionNames } from "@/app/utils/stores/types";
 import { Filter, Document } from "mongodb";
 
-export async function PUT(req: Request) {
+export async function PATCH(req: Request) {
     try {
         const body = await req.json();
-        const { recipeId, title, ingredients, instructions, category, visibility } = body;
+        const { recipeId, title, ingredients, instructions, category, visibility, recipeImage } = body;
 
         if (!recipeId) {
             return Response.json({
@@ -24,6 +24,15 @@ export async function PUT(req: Request) {
         if (instructions !== undefined) updateData.instructions = instructions;
         if (category !== undefined) updateData.category = category;
         if (visibility !== undefined) updateData.visibility = visibility;
+
+        if (recipeImage !== undefined) {
+            if (recipeImage && !recipeImage.startsWith('data:image/')) {
+                return Response.json({
+                    error: "Invalid image format"
+                }, { status: 400 });
+            }
+            updateData.recipeImage = recipeImage;
+        }
 
         if (Object.keys(updateData).length === 0) {
             return Response.json({
@@ -64,6 +73,7 @@ export async function PUT(req: Request) {
             recipe: {
                 id: updatedRecipe?.id,
                 title: updatedRecipe?.title,
+                recipeImage: updatedRecipe?.recipeImage,
                 ingredients: updatedRecipe?.ingredients,
                 instructions: updatedRecipe?.instructions,
                 category: updatedRecipe?.category,

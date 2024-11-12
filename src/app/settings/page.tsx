@@ -7,7 +7,6 @@ interface SettingsProps {
   userId?: string;
 }
 
-
 const user_Id = "0a4c9961-b2fd-4eb9-a087-2216eb3008ea";
 
 const Settings: React.FC<SettingsProps> = ({ userId = user_Id }) => {

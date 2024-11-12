@@ -52,10 +52,6 @@ export async function POST(req: Request) {
             return Response.json({ error: "User not found" }, { status: 404 });
         }
 
-        if (result.modifiedCount === 0) {
-            return Response.json({ error: "No changes made to user" }, { status: 400 });
-        }
-
         const updatedUser = await collection.findOne({ id: userId });
 
         if (!updatedUser) {

@@ -8,22 +8,20 @@ export async function POST(req: Request) {
         const body = await req.json();
         const { title, ingredients, recipeImage, instructions, category, visibility, userId } = body
 
-        if (!title || !ingredients || !instructions || !category || !visibility || !userId) {
+        if (!title || !ingredients || !instructions || !category || !visibility || !userId || !recipeImage) {
             return Response.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        if (recipeImage !== undefined) {
-            if (recipeImage && !recipeImage.startsWith('data:image/')) {
-                return Response.json({
-                    error: "Invalid image format"
-                }, { status: 400 });
-            }
+        if (recipeImage && !recipeImage.startsWith('data:image/')) {
+            return Response.json({
+                error: "Invalid image format"
+            }, { status: 400 });
         }
 
         const recipe: Recipe = {
             id: nanoid(32),
             title,
-            recipeImage: recipeImage,
+            recipeImage,
             ingredients,
             instructions,
             category,

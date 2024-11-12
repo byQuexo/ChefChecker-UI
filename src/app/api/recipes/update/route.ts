@@ -2,7 +2,7 @@ import { apiStore } from "@/app/utils/stores/apiStore";
 import { CollectionNames } from "@/app/utils/stores/types";
 import { Filter, Document } from "mongodb";
 
-export async function PUT(req: Request) {
+export async function PATCH(req: Request) {
     try {
         const body = await req.json();
         const { recipeId, title, ingredients, instructions, category, visibility, recipeImage } = body;
@@ -31,7 +31,7 @@ export async function PUT(req: Request) {
                     error: "Invalid image format"
                 }, { status: 400 });
             }
-            updateData.profileImage = recipeImage;
+            updateData.recipeImage = recipeImage;
         }
 
         if (Object.keys(updateData).length === 0) {

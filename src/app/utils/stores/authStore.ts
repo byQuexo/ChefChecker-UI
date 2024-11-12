@@ -12,8 +12,10 @@ class AuthStore{
                     return null;
                 }
                 const registerData = await response.json();
-                console.log (registerData.user);
-                return registerData.user;
+                return {
+                    user: registerData.user
+                };
+
     
             } catch (error) {
                 console.log("error in registration:", error);
@@ -30,8 +32,9 @@ class AuthStore{
                     return null;
                 }
                 const loginData = await response.json();
-                console.log (loginData.user);
-                return loginData.user;           
+                return {
+                    user: loginData.user
+                };
                     
             } catch (error) {
                 console.log("error in logging in:", error);

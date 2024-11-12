@@ -17,7 +17,9 @@ export async function POST(req: Request) {
             email,
             username,
             password,
+            bio: "",
             favorites: [],
+            profileImage: "",
             preference: {
                 darkMode: "light",
                 units: "metric"

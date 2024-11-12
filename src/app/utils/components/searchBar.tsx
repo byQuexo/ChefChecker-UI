@@ -3,11 +3,12 @@
 //importing modules
 import React, { useState } from "react";
 import { Recipe } from "../stores/types";
-import { FaSearch } from "react-icons/fa"
+import { FaSearch } from "react-icons/fa";
+import { apiStore } from "@/app/utils/stores/apiStore";
 
 //function to search recipe based on name
 function SearchBar() {
-    const defaultArray: Recipe[] = []
+    let defaultArray: Recipe[] = []
 
     //updating the state when there is a change in the search bar
     const [recipeInput, setRecipeInput] = useState("")
@@ -15,7 +16,7 @@ function SearchBar() {
 
     //linking the search route as a GET request to display all results 
     async function showRecipes(): Promise<Recipe[]> {
-        const response = await fetch(`/api/recipes`,{
+        const response = await fetch(`/api/recipes`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -23,10 +24,13 @@ function SearchBar() {
             },
         })
         const allRecipes = await response.json();
-        console.log(JSON.stringify(allRecipes))
-        const listOfRecipes: Recipe[] = []
-        return listOfRecipes
+        const defaultArray: Recipe[] = allRecipes
+        console.log(defaultArray)
+        return defaultArray
     }
+
+    //returning the search bar
+
 
     return (
         <div className="max-w-md mx-auto mt-8">
@@ -44,8 +48,8 @@ function SearchBar() {
                     id="recipeName"
                     value={recipeInput}
                     onChange={(e) => setRecipeInput(e.target.value)}
-                    className="w-full px-20 py-2 text-gray-700 bg-white border rounded-full focus:outline-none focus:ring-1 focus:ring-grey-500"/>
-                <br/>
+                    className="w-full px-20 py-2 text-gray-700 bg-white border rounded-full focus:outline-none focus:ring-1 focus:ring-grey-500" />
+                <br />
             </div>
             <br />
             <br></br>

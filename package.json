@@ -9,10 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "child_process": "^1.0.2",
     "jwt-decode": "^4.0.0",
     "mobx": "^6.13.5",
     "mongodb": "^6.9.0",
     "nanoid": "^5.0.7",
+    "net": "^1.0.2",
     "next": "14.2.13",
     "react": "^18",
     "react-dom": "^18",

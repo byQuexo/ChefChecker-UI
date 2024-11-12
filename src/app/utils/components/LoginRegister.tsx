@@ -129,7 +129,7 @@ const LoginRegister = observer(() => {
                     ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     {isLogin ? (
                         <p>
-                            Don't have an account?{' '}
+                            Don&#39;t have an account?{' '}
                             <button
                                 onClick={() => handleLoginState(false)}
                                 className={`font-medium transition-colors 

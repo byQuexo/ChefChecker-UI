@@ -16,6 +16,7 @@ interface Props {
 const ProfileButton = ({ userId, darkMode, handlePreferences }: Props) => {
     const [profilePic, setProfilePic] = useState<string | null>('');
     const [isLoading, setIsLoading] = useState(true);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [error, setError] = useState(false);
 
     useEffect(() => {

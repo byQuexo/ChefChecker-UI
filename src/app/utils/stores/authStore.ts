@@ -7,7 +7,7 @@ class AuthStore{
                 const data = {username, email, password}           
                 const response = await getHTTP().post('/api/auth/register', data);
                 
-                if (response.status !== 200){
+                if (response.status !== 201){
                     console.log("registration failed", response.status);
                     return null;
                 }

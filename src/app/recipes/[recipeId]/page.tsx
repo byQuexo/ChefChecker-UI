@@ -192,7 +192,7 @@ const RecipePage: React.FC<RecipePageProps> = observer(({ params }) => {
                 </button>
               )}
             </h2>
-            <ul className={`text-sm list-disc list-inside space-y-2 ${rootStore.darkMode ? 'text-yellow-400' : 'text-gray-700'}`}>
+            <ul className={`text-sm list-disc list-inside space-y-2 ${rootStore.darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
               {Array.isArray(editedData.ingredients)
                 ? editedData.ingredients.map((ingredient, index) => (
                     <li key={index}>{ingredient}</li>
@@ -212,7 +212,7 @@ const RecipePage: React.FC<RecipePageProps> = observer(({ params }) => {
                 </button>
               )}
             </h2>
-            <ol className={`text-sm list-decimal list-inside space-y-2 ${rootStore.darkMode ? 'text-yellow-400' : 'text-gray-700'}`}>
+            <ol className={`text-sm list-decimal list-inside space-y-2 ${rootStore.darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
               {editedData.instructions.split("\n").map((step, index) => (
                 <li key={index}>{step}</li>
               ))}
@@ -239,7 +239,7 @@ const RecipePage: React.FC<RecipePageProps> = observer(({ params }) => {
                 <div className="text-yellow-500 text-3xl">😊</div>
                 <div>
                   <p className={`text-sm font-semibold ${rootStore.darkMode ? 'text-yellow-400' : 'text-gray-800'}`}>{comment.userId}</p>
-                  <p className={`text-sm ${rootStore.darkMode ? 'text-yellow-400' : 'text-gray-600'}`}>{comment.text}</p>
+                  <p className={`text-sm ${rootStore.darkMode ? 'text-gray-200' : 'text-gray-600'}`}>{comment.text}</p>
                 </div>
               </div>
             ))

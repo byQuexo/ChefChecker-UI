@@ -1,35 +1,34 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-
-
-
-
-Hannah-Ann Nana-Hackman
-Manita Tamang
-David Werner
-**Tim Gühnemann**
+           __.                                              
+        .-".'                      .--.            _..._    
+      .' .'                     .'    \       .-""  __ ""-. 
+     /  /                     .'       : --..:__.-""  ""-. \
+    :  :                     /         ;.d$$    sbp_.-""-:_:
+    ;  :                    : ._       :P .-.   ,"TP        
+    :   \                    \  T--...-; : d$b  :d$b        
+     \   `.                   \  `..'    ; $ $  ;$ $        
+      `.   "-.                 ).        : T$P  :T$P        
+        \..---^..             /           `-'    `._`._     
+       .'        "-.       .-"                     T$$$b    
+      /             "-._.-"               ._        '^' ;   
+     :                                    \.`.         /    
+     ;                                -.   \`."-._.-'-'     
+    :                                 .'\   \ \ \ \         
+    ;  ;                             /:  \   \ \ . ;        
+   :   :                            ,  ;  `.  `.;  :        
+   ;    \        ;                     ;    "-._:  ;        
+  :      `.      :                     :         \/         
+  ;       /"-.    ;                    :                    
+ :       /    "-. :                  : ;                    
+ :     .'        T-;                 ; ;        
+ ;    :          ; ;                /  :        
+ ;    ;          : :              .'    ;       
+:    :            ;:         _..-"\     :       
+:     \           : ;       /      \     ;      
+;    . '.         '-;      /        ;    :      
+;  \  ; :           :     :         :    '-.      
+'.._L.:-'           :     ;    bug   ;    . `. 
+                     ;    :          :  \  ; :  
+                     :    '-..       '.._L.:-'  
+                      ;     , `.                
+                      :   \  ; :                
+                      '..__L.:-'

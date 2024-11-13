@@ -11,6 +11,12 @@ type RecipePageProps = {
   params: { recipeId: string };
 };
 
+interface UserProfile {
+  id: string;
+  username: string;
+  profileImage: string;
+}
+
 const RecipePage: React.FC<RecipePageProps> = observer(({ params }) => {
   const { recipeId } = params;
 
@@ -22,10 +28,11 @@ const RecipePage: React.FC<RecipePageProps> = observer(({ params }) => {
     imageSrc: "",
     ingredients: "",
     instructions: "",
-    visibility: "",
+    visibility: "public",
   });
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
+  const [userProfiles, setUserProfiles] = useState<{ [key: string]: UserProfile }>({});
 
   const isCurrentUserOwner = rootStore.userId === recipe?.userId;
 
@@ -63,6 +70,31 @@ const RecipePage: React.FC<RecipePageProps> = observer(({ params }) => {
       document.documentElement.classList.remove("dark");
     }
   }, [rootStore.darkMode]);
+
+  const fetchUserProfile = async (userId: string) => {
+    if (userProfiles[userId]) return; // Skip if user data is already fetched
+
+    try {
+      const response = await getHTTP().get(`/api/users/${userId}`);
+      const userData = await response.json();
+      const sanitizedUser: UserProfile = {
+        id: userData.user.id,
+        username: userData.user.username,
+        profileImage: userData.user.profileImage,
+      };
+      setUserProfiles((prev) => ({ ...prev, [userId]: sanitizedUser }));
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+  useEffect(() => {
+    comments.forEach((comment) => {
+      if (comment.userId) {
+        fetchUserProfile(comment.userId);
+      }
+    });
+  }, [comments]);
 
   const openModal = (field: string, value: string) => {
     setModalContent({ field, value });
@@ -232,15 +264,24 @@ const RecipePage: React.FC<RecipePageProps> = observer(({ params }) => {
         <div className={`${rootStore.darkMode ? 'bg-gray-700' : 'bg-yellow-100'} p-4 rounded-lg shadow-md mt-6`}>
           <h2 className={`text-xl font-semibold ${rootStore.darkMode ? 'text-yellow-400' : 'text-gray-800'} mb-4`}>Comments</h2>
           {comments.length > 0 ? (
-            comments.map((comment, index) => (
-              <div key={index} className="flex items-start space-x-4 mb-4">
-                <div className="text-yellow-500 text-3xl">😊</div>
-                <div>
-                  <p className={`text-sm font-semibold ${rootStore.darkMode ? 'text-yellow-400' : 'text-gray-800'}`}>{comment.userId}</p>
-                  <p className={`text-sm ${rootStore.darkMode ? 'text-gray-200' : 'text-gray-600'}`}>{comment.text}</p>
+            comments.map((comment, index) => {
+              const userProfile = userProfiles[comment.userId];
+              return (
+                <div key={index} className="flex items-start space-x-4 mb-4">
+                  {userProfile ? (
+                    <img src={userProfile.profileImage} alt={userProfile.username} className="w-10 h-10 rounded-full" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gray-300" />
+                  )}
+                  <div>
+                    <p className={`text-sm font-semibold ${rootStore.darkMode ? 'text-yellow-400' : 'text-gray-800'}`}>
+                      {userProfile ? userProfile.username : "Loading..."}
+                    </p>
+                    <p className={`text-sm ${rootStore.darkMode ? 'text-gray-200' : 'text-gray-600'}`}>{comment.text}</p>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <p className={`${rootStore.darkMode ? 'text-yellow-400' : 'text-gray-600'}`}>No comments yet.</p>
           )}

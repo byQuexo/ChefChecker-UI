@@ -22,7 +22,7 @@ const RecipePage: React.FC<RecipePageProps> = observer(({ params }) => {
     imageSrc: "",
     ingredients: "",
     instructions: "",
-    visibility: "public",
+    visibility: "",
   });
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
@@ -36,7 +36,6 @@ const RecipePage: React.FC<RecipePageProps> = observer(({ params }) => {
       try {
         const response = await getHTTP().get(`/api/recipes/${recipeId}`);
         const data = await response.json();
-        console.log(data.recipe);
 
         if (data.recipe) {
           setRecipe(data.recipe);
@@ -115,7 +114,6 @@ const RecipePage: React.FC<RecipePageProps> = observer(({ params }) => {
 
     try {
       await getHTTP().patch("/api/recipes/update", updatedData);
-      console.log(`${field} updated successfully`);
     } catch (error) {
       console.error(`Error updating ${field}:`, error);
     }

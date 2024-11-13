@@ -5,7 +5,6 @@ export async function POST(req: Request) {
     try {
         const body = await req.json();
         const { profileImage, username, bio, password, preferences, userId } = body;
-        const { darkMode, units } = preferences;
 
         if (!userId) {
             return Response.json({ error: "Missing required userId" }, { status: 400 });
@@ -35,6 +34,7 @@ export async function POST(req: Request) {
         }
 
         if (preferences !== undefined) {
+            const { darkMode, units } = preferences;
             updateData.preference = {
                 darkMode: darkMode,
                 units: units

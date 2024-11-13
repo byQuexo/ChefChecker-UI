@@ -139,10 +139,12 @@ class RootStore {
     public clearStore(): void {
         this.currentUserId = null;
         this.userThemeMode = false;
+        this.userProfilePicture = null;
 
         if (typeof window !== 'undefined') {
             window.localStorage.removeItem('id');
             window.localStorage.setItem('darkMode', 'false');
+            window.localStorage.removeItem('profilePicture');
         }
     }
 }

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
-import { FiEdit, FiX } from "react-icons/fi";
+import { Pencil, X } from "lucide-react";
 import { Recipe, Comment } from "../../utils/stores/types";
 import { getHTTP } from "../../utils/utils";
 import rootStore from "../../utils/stores/globalStore";
@@ -21,25 +21,24 @@ const RecipePage: React.FC<RecipePageProps> = observer(({ params }) => {
   const { recipeId } = params;
 
   const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState("");
+  const [userProfiles, setUserProfiles] = useState<{ [key: string]: UserProfile }>({});
   const [showModal, setShowModal] = useState(false);
   const [modalContent, setModalContent] = useState({ field: "", value: "" });
   const [editedData, setEditedData] = useState({
     title: "",
     imageSrc: "",
-    ingredients: "",
+    ingredients: [] as string[], 
     instructions: "",
     visibility: "public",
   });
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [newComment, setNewComment] = useState("");
-  const [userProfiles, setUserProfiles] = useState<{ [key: string]: UserProfile }>({});
 
   const isCurrentUserOwner = rootStore.userId === recipe?.userId;
+  const darkMode = rootStore.darkMode;
 
   useEffect(() => {
     const fetchRecipe = async () => {
-      if (!recipeId) return;
-
       try {
         const response = await getHTTP().get(`/api/recipes/${recipeId}`);
         const data = await response.json();
@@ -49,11 +48,13 @@ const RecipePage: React.FC<RecipePageProps> = observer(({ params }) => {
           setEditedData({
             title: data.recipe.title,
             imageSrc: data.recipe.recipeImage,
-            ingredients: data.recipe.ingredients.join(", "),
+            ingredients: Array.isArray(data.recipe.ingredients)
+              ? data.recipe.ingredients
+              : data.recipe.ingredients.split(", "),
             instructions: data.recipe.instructions,
             visibility: data.recipe.visibility || "public",
           });
-          setComments(data.recipe.comments);
+          setComments(data.recipe.comments || []);
         }
       } catch (error) {
         console.error("Error fetching recipe:", error);
@@ -64,65 +65,39 @@ const RecipePage: React.FC<RecipePageProps> = observer(({ params }) => {
   }, [recipeId]);
 
   useEffect(() => {
-    if (rootStore.darkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [rootStore.darkMode]);
-
-  const fetchUserProfile = async (userId: string) => {
-    if (userProfiles[userId]) return; // Skip if user data is already fetched
-
-    try {
-      const response = await getHTTP().get(`/api/users/${userId}`);
-      const userData = await response.json();
-      const sanitizedUser: UserProfile = {
-        id: userData.user.id,
-        username: userData.user.username,
-        profileImage: userData.user.profileImage,
-      };
-      setUserProfiles((prev) => ({ ...prev, [userId]: sanitizedUser }));
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  };
-
-  useEffect(() => {
-    comments.forEach((comment) => {
-      if (comment.userId) {
+    comments?.forEach((comment) => {
+      if (comment.userId && !userProfiles[comment.userId]) {
         fetchUserProfile(comment.userId);
       }
     });
   }, [comments]);
 
-  const openModal = (field: string, value: string) => {
-    setModalContent({ field, value });
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const response = await getHTTP().get(`/api/users/${userId}`);
+      const userData = await response.json();
+
+      const sanitizedUser: UserProfile = {
+        id: userData.user.id,
+        username: userData.user.username,
+        profileImage: userData.user.profileImage,
+      };
+
+      setUserProfiles((prev) => ({ ...prev, [userId]: sanitizedUser }));
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+    }
+  };
+
+  const openModal = (field: string, value: string | string[]) => {
+    const stringValue =
+      Array.isArray(value) && field === "ingredients" ? value.join(", ") : String(value);
+
+    setModalContent({ field, value: stringValue });
     setShowModal(true);
   };
 
   const closeModal = () => setShowModal(false);
-
-  const convertImageToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-    });
-  };
-
-  const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const base64Image = await convertImageToBase64(file);
-      setEditedData((prevData) => ({
-        ...prevData,
-        imageSrc: base64Image,
-      }));
-      handleUpdate("recipeImage", base64Image);
-    }
-  };
 
   const handleSave = () => {
     const updatedValue =
@@ -134,18 +109,17 @@ const RecipePage: React.FC<RecipePageProps> = observer(({ params }) => {
       ...prevData,
       [modalContent.field]: updatedValue,
     }));
+
     handleUpdate(modalContent.field, updatedValue);
     setShowModal(false);
   };
 
   const handleUpdate = async (field: string, value: string | string[]) => {
-    const updatedData = {
-      recipeId,
-      [field]: value,
-    };
+    const updatedData = { recipeId, [field]: value };
 
     try {
       await getHTTP().patch("/api/recipes/update", updatedData);
+      setRecipe((prev) => (prev ? { ...prev, [field]: value } : prev));
     } catch (error) {
       console.error(`Error updating ${field}:`, error);
     }
@@ -163,174 +137,289 @@ const RecipePage: React.FC<RecipePageProps> = observer(({ params }) => {
     try {
       const response = await getHTTP().post("/api/recipes/comments/add", commentData);
       if (response.status === 201) {
-        setComments([...comments, { commentId: `${comments.length + 1}`, userId: rootStore.userId!, text: newComment }]);
+        setComments((prev) => [
+          ...prev,
+          { commentId: `${prev.length + 1}`, userId: rootStore.userId!, text: newComment },
+        ]);
         setNewComment("");
-      } else {
-        console.error("Failed to add comment");
       }
     } catch (error) {
       console.error("Error adding comment:", error);
     }
   };
 
+  const handleDeleteComment = async (commentId: string) => {
+    const deleteData = { userId: rootStore.userId || "", commentId, recipeId };
+
+    try {
+      const response = await getHTTP().post("/api/recipes/comments/delete", deleteData);
+      if (response.status === 200) {
+        setComments((prev) => prev.filter((comment) => comment.commentId !== commentId));
+      }
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+    }
+  };
+
+  const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const base64Image = await convertImageToBase64(file);
+      setEditedData((prev) => ({ ...prev, imageSrc: base64Image }));
+      handleUpdate("recipeImage", base64Image);
+    }
+  };
+
+  const convertImageToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+
   const toggleVisibility = () => {
     const newVisibility = editedData.visibility === "public" ? "private" : "public";
-    setEditedData((prevData) => ({
-      ...prevData,
-      visibility: newVisibility,
-    }));
+    setEditedData((prev) => ({ ...prev, visibility: newVisibility }));
     handleUpdate("visibility", newVisibility);
   };
 
-  if (!recipe) return <div>Loading...</div>;
+  if (!recipe) return (
+    <div className={`flex justify-center items-center h-64 
+        ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        <div className={`animate-spin rounded-full h-12 w-12 border-b-2 
+            ${darkMode ? 'border-purple-400' : 'border-purple-500'}`}></div>
+    </div>
+);
 
-  return (
-    <div className={`p-12 min-h-screen flex justify-center items-center ${rootStore.darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
-      <div className={`shadow-2xl rounded-xl max-w-[1200px] w-full p-6 transform transition duration-500 ${rootStore.darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-        
-        <h1 className={`text-center text-3xl font-bold ${rootStore.darkMode ? 'text-yellow-400' : 'text-red-700'} mb-6 flex items-center justify-center`}>
-          {editedData.title}
-          {isCurrentUserOwner && (
-            <button onClick={() => openModal("title", editedData.title)}>
-              <FiEdit className={`ml-2 ${rootStore.darkMode ? 'text-yellow-400' : 'text-red-700'}`} />
-            </button>
-          )}
-        </h1>
+return (
+  <div
+    className={`p-12 min-h-screen ${
+      darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"
+    }`}
+  >
+    <div
+      className={`max-w-4xl mx-auto p-6 rounded-lg shadow-lg ${
+        darkMode ? "bg-gray-800" : "bg-white"
+      }`}
+    >
 
-        <div className="rounded-md overflow-hidden shadow-sm mb-6 relative">
-          <img src={editedData.imageSrc} alt={recipe.title} className="w-full object-cover max-h-96" />
-          {isCurrentUserOwner && (
-            <label className="absolute top-2 right-2 bg-white rounded-full p-1 cursor-pointer">
-              <FiEdit className={`text-${rootStore.darkMode ? 'yellow-400' : 'red-700'}`} />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-              />
-            </label>
-          )}
-        </div>
-
-        <div className="flex flex-col lg:flex-row justify-between gap-6 mb-6">
-          <div className={`w-full lg:w-1/2 ${rootStore.darkMode ? 'bg-gray-700 border-gray-600' : 'bg-yellow-100/80 border-yellow-100/70'} p-4 rounded-md shadow-md`}>
-            <h2 className={`text-xl font-semibold ${rootStore.darkMode ? 'text-yellow-400' : 'text-red-800'} mb-4 flex items-center`}>
-              Ingredients
-              {isCurrentUserOwner && (
-                <button onClick={() => openModal("ingredients", editedData.ingredients)}>
-                  <FiEdit className={`ml-2 ${rootStore.darkMode ? 'text-yellow-400' : 'text-red-700'}`} />
-                </button>
-              )}
-            </h2>
-            <ul className={`text-sm list-disc list-inside space-y-2 ${rootStore.darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-              {Array.isArray(editedData.ingredients)
-                ? editedData.ingredients.map((ingredient, index) => (
-                    <li key={index}>{ingredient}</li>
-                ))
-                : editedData.ingredients.split(", ").map((ingredient, index) => (
-                    <li key={index}>{ingredient}</li>
-                ))}
-            </ul>
-          </div>
-
-          <div className={`w-full lg:w-1/2 ${rootStore.darkMode ? 'bg-gray-700 border-gray-600' : 'bg-yellow-100/80 border-yellow-100/70'} p-4 rounded-md shadow-md`}>
-            <h2 className={`text-xl font-semibold ${rootStore.darkMode ? 'text-yellow-400' : 'text-red-800'} mb-4 flex items-center`}>
-              Instructions
-              {isCurrentUserOwner && (
-                <button onClick={() => openModal("instructions", editedData.instructions)}>
-                  <FiEdit className={`ml-2 ${rootStore.darkMode ? 'text-yellow-400' : 'text-red-700'}`} />
-                </button>
-              )}
-            </h2>
-            <ol className={`text-sm list-decimal list-inside space-y-2 ${rootStore.darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-              {editedData.instructions.split("\n").map((step, index) => (
-                <li key={index}>{step}</li>
-              ))}
-            </ol>
-          </div>
-        </div>
-
+      <div className="relative mb-6">
+        <img
+          src={editedData.imageSrc}
+          alt={recipe.title}
+          className="w-full h-96 object-cover rounded-lg shadow-md"
+        />
         {isCurrentUserOwner && (
-          <div className="mt-4">
-            <button
-              onClick={toggleVisibility}
-              className={`py-2 px-4 rounded-md font-semibold ${editedData.visibility === 'public' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'} hover:bg-opacity-90 transition duration-200`}
-            >
-              Set as {editedData.visibility === 'public' ? 'Private' : 'Public'}
-            </button>
-          </div>
-        )}
-
-        <div className={`${rootStore.darkMode ? 'bg-gray-700' : 'bg-yellow-100'} p-4 rounded-lg shadow-md mt-6`}>
-          <h2 className={`text-xl font-semibold ${rootStore.darkMode ? 'text-yellow-400' : 'text-gray-800'} mb-4`}>Comments</h2>
-          {comments.length > 0 ? (
-            comments.map((comment, index) => {
-              const userProfile = userProfiles[comment.userId];
-              return (
-                <div key={index} className="flex items-start space-x-4 mb-4">
-                  {userProfile ? (
-                    <img src={userProfile.profileImage} alt={userProfile.username} className="w-10 h-10 rounded-full" />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-gray-300" />
-                  )}
-                  <div>
-                    <p className={`text-sm font-semibold ${rootStore.darkMode ? 'text-yellow-400' : 'text-gray-800'}`}>
-                      {userProfile ? userProfile.username : "Loading..."}
-                    </p>
-                    <p className={`text-sm ${rootStore.darkMode ? 'text-gray-200' : 'text-gray-600'}`}>{comment.text}</p>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <p className={`${rootStore.darkMode ? 'text-yellow-400' : 'text-gray-600'}`}>No comments yet.</p>
-          )}
-          <div className="mt-4">
-            <textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Add a comment..."
-              className={`${rootStore.darkMode ? 'bg-gray-800 text-yellow-400' : 'bg-purple-500 text-white'} w-full p-2 rounded-md focus:outline-none focus:ring focus:ring-purple-500 duration-200 ease-in-out`}
-            />
-            <button
-              onClick={handleAddComment}
-              className="bg-purple-500 text-white py-2 px-6 rounded-md font-semibold mt-2 hover:bg-purple-600 transition duration-200"
-            >
-              Add Comment
-            </button>
-          </div>
-        </div>
-
-        {showModal && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-2xl w-full max-w-lg p-6`}>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-semibold text-gray-800 dark:text-yellow-400">Edit {modalContent.field.charAt(0).toUpperCase() + modalContent.field.slice(1)}</h2>
-                <button onClick={closeModal}>
-                  <FiX className="text-gray-800 dark:text-yellow-400 text-2xl" />
-                </button>
-              </div>
-              <textarea
-                value={modalContent.value}
-                onChange={(e) => setModalContent({ ...modalContent, value: e.target.value })}
-                rows={10}
-                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-yellow-400"
-                placeholder={`Edit ${modalContent.field}...`}
-              />
-              <div className="flex justify-end mt-4">
-                <button
-                  onClick={handleSave}
-                  className="bg-purple-500 text-white py-2 px-6 rounded-md font-semibold hover:bg-purple-600 transition duration-200"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-          </div>
+          <label className="absolute top-4 right-4 bg-gray-300 dark:bg-gray-700 p-2 rounded-full cursor-pointer shadow-md">
+            <Pencil className="text-gray-700 dark:text-white" />
+            <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+          </label>
         )}
       </div>
+
+
+      <h1
+        className={`text-4xl font-bold pb-6 text-center border-b-2 ${
+          darkMode ? "border-gray-700 text-blue-200" : "border-gray-200 text-gray-800"
+        }`}
+      >
+        {editedData.title}
+        {isCurrentUserOwner && (
+          <button onClick={() => openModal("title", editedData.title)} className="ml-2">
+            <Pencil className="text-yellow-400" />
+          </button>
+        )}
+      </h1>
+
+
+      <div
+        className={`flex justify-between items-start mt-8 mb-8 p-4 ${
+          darkMode
+            ? "bg-gray-700 rounded-md"
+            : "bg-gray-50 border border-gray-200 shadow-sm rounded-lg"
+        }`}
+      >
+
+        <div className="flex-1 pr-4">
+          <h2
+            className={`text-xl font-semibold mb-4 flex items-center ${
+              darkMode ? "text-yellow-400" : "text-gray-800"
+            }`}
+          >
+            Ingredients
+            {isCurrentUserOwner && (
+              <button onClick={() => openModal("ingredients", editedData.ingredients)} className="ml-2">
+                <Pencil className="text-yellow-400" />
+              </button>
+            )}
+          </h2>
+          <ul
+            className={`list-disc pl-4 ${
+              darkMode ? "text-gray-300" : "text-gray-600"
+            }`}
+          >
+            {editedData.ingredients.map((ingredient, index) => (
+              <li key={index}>{ingredient}</li>
+            ))}
+          </ul>
+        </div>
+
+            <div className={`flex-1 pl-4 border-l-2 ${darkMode ? 'border-gray-600' : 'border-gray-200'}`}>
+          <h2
+            className={`text-xl font-semibold mb-4 flex items-center ${
+              darkMode ? "text-yellow-400" : "text-gray-800"
+            }`}
+          >
+            Instructions
+            {isCurrentUserOwner && (
+              <button onClick={() => openModal("instructions", editedData.instructions)} className="ml-2">
+                <Pencil className="text-yellow-400" />
+              </button>
+            )}
+          </h2>
+          <ol
+            className={`list-decimal pl-4 ${
+              darkMode ? "text-gray-300" : "text-gray-600"
+            }`}
+          >
+            {editedData.instructions.split("\n").map((step, index) => (
+              <li key={index}>{step}</li>
+            ))}
+          </ol>
+        </div>
+      </div>
+
+      <div
+        className={`p-4 rounded-lg ${
+          darkMode ? "bg-gray-700" : "bg-gray-50 border border-gray-200 shadow-sm"
+        } mb-8`}
+      >
+        <h2 className="text-xl font-semibold mb-4">Comments</h2>
+        {comments.map((comment) => {
+          const user = userProfiles[comment.userId];
+          return (
+            <div
+              key={comment.commentId}
+              className={`flex items-start mb-4`}
+            >
+              {user ? (
+                <img
+                  src={user.profileImage}
+                  alt={user.username}
+                  className="w-10 h-10 rounded-full mr-4 shadow-md"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gray-400 mr-4" />
+              )}
+              <div>
+                <p
+                  className={`font-semibold ${
+                    darkMode ? "text-purple-300" : "text-gray-800"
+                  }`}
+                >
+                  {user ? user.username : "Unknown User"}
+                </p>
+                <p>{comment.text}</p>
+              </div>
+              {comment.userId === rootStore.userId && (
+                <button onClick={() => handleDeleteComment(comment.commentId)} className="ml-auto text-red-500">
+                  <X />
+                </button>
+              )}
+            </div>
+          );
+        })}
+        <textarea
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          className={`w-full p-2 mt-4 rounded-lg ${
+            darkMode
+              ? "bg-gray-800 text-gray-300 border-gray-600"
+              : "bg-gray-100 text-gray-800 border border-gray-300"
+          }`}
+          placeholder="Add a comment..."
+        />
+        <button
+          onClick={handleAddComment}
+          className="bg-purple-500 text-white py-2 px-4 mt-4 rounded-lg hover:bg-purple-600 transition"
+        >
+          Add Comment
+        </button>
+      </div>
+
+     {isCurrentUserOwner && (
+        <button
+          onClick={toggleVisibility}
+          className={`px-4 py-2 rounded-md ${
+            editedData.visibility === "public" ? "bg-green-500" : "bg-red-500"
+          } text-white hover:opacity-90 transition`}
+        >
+          {editedData.visibility === "public" ? "Set as Private" : "Set as Public"}
+        </button>
+      )}
     </div>
-  );
-});
+
+    {showModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div
+      className={`w-[90%] max-w-lg p-6 rounded-lg shadow-lg transform transition-all duration-300 ${
+        darkMode ? "bg-gray-800 text-gray-200" : "bg-white text-gray-800"
+      }`}
+    >
+
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold">
+          Edit {modalContent.field.charAt(0).toUpperCase() + modalContent.field.slice(1)}
+        </h2>
+        <button onClick={closeModal}>
+          <X
+            className={`text-xl ${
+              darkMode ? "text-gray-400 hover:text-red-400" : "text-gray-600 hover:text-red-500"
+            } transition-colors duration-200`}
+          />
+        </button>
+      </div>
+
+
+      <textarea
+        value={modalContent.value}
+        onChange={(e) => setModalContent({ ...modalContent, value: e.target.value })}
+        rows={10}
+        className={`w-full p-4 rounded-md border ${
+          darkMode
+            ? "border-gray-600 bg-gray-700 text-gray-300 focus:ring-purple-500"
+            : "border-gray-300 bg-gray-100 text-gray-800 focus:ring-blue-500"
+        } focus:outline-none focus:ring-2 transition duration-200`}
+        placeholder={`Edit ${modalContent.field}...`}
+      />
+
+
+      <div className="flex justify-end mt-4 space-x-4">
+        <button
+          onClick={closeModal}
+          className={`px-4 py-2 rounded-md ${
+            darkMode
+              ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
+              : "bg-gray-300 text-gray-800 hover:bg-gray-400"
+          } transition duration-200`}
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleSave}
+          className="px-4 py-2 rounded-md bg-purple-500 text-white hover:bg-purple-600 transition duration-200"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+  </div>
+
+  
+)})
+
 
 export default RecipePage;

@@ -16,13 +16,20 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
 
     const categories = [
         { id: 'all', label: 'All Recipes', icon: BookOpen },
-        { id: '1', label: 'Noodles', icon: Soup },
-        { id: '2', label: 'Pizza', icon: Pizza },
-        { id: '3', label: 'Burger', icon: ChefHat },
-        { id: '4', label: 'Asia', icon: Salad },
+        { id: 'Noodles', label: 'Noodles', icon: Soup },
+        { id: 'Pizza', label: 'Pizza', icon: Pizza },
+        { id: 'Burger', label: 'Burger', icon: ChefHat },
+        { id: 'Asia', label: 'Asia', icon: Salad },
     ];
 
     const [isOpen, setIsOpen] = useState(false);
+
+    // Helper function to get the current filter label
+    const getCurrentFilterLabel = () => {
+        if (currentFilter === 'my-recipes') return 'My Recipes';
+        if (currentFilter === 'favorites') return 'Favorites';
+        return categories.find(c => c.id === currentFilter)?.label || '';
+    };
 
     return (
         <div className={`w-full transition-colors duration-200 
@@ -114,9 +121,7 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
                             Active Filter:
                         </span>
                         <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                            {categories.find(c => c.id === currentFilter)?.label ||
-                            currentFilter === 'my-recipes' ? 'My Recipes' :
-                                currentFilter === 'favorites' ? 'Favorites' : ''}
+                            {getCurrentFilterLabel()}
                         </span>
                         <button
                             onClick={() => onFilterChange('all')}

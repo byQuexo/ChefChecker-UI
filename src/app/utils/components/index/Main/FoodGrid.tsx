@@ -19,6 +19,7 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm, recip
     const [recipeList, setRecipeList] = useState<Recipe[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [favorites, setFavorites] = useState<Set<string>>(new Set());
     const [pagination, setPagination] = useState<PaginationData>({
         currentPage: 1,
         pageSize: 8,
@@ -26,8 +27,14 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm, recip
         totalRecipes: 0,
     });
     const darkMode = rootStore.darkMode;
+    const userId = rootStore.userId;
 
-    // Update local state when recipeData changes
+    useEffect(() => {
+        if (userId) {
+            getFavorites();
+        }
+    }, [userId]);
+
     useEffect(() => {
         if (recipeData) {
             setLoading(true);
@@ -35,6 +42,9 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm, recip
                 setRecipeList(recipeData.recipes);
                 setPagination(recipeData.pagination);
                 setError(null);
+                if (userId) {
+                    getFavorites();
+                }
             } catch (e) {
                 console.error("Error updating recipes:", e);
                 setError("Failed to update recipes");
@@ -42,15 +52,36 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm, recip
                 setLoading(false);
             }
         }
-    }, [recipeData]);
+    }, [recipeData, userId]);
 
-    // Handle initial load and search
     useEffect(() => {
         if (!recipeData) {
             getAllRecipes(pagination.currentPage);
         }
-    }, [searchTerm, pagination.currentPage]);
+    }, [searchTerm, pagination.currentPage, recipeData]);
 
+    const getFavorites = async () => {
+        if (!userId) return;
+
+        try {
+            const response = await getHTTP().get(`api/users/favorites/${userId}`);
+            const data = await response.json();
+
+            if (data && Array.isArray(data.recipes)) {
+                const favoriteIds: string[] = data.recipes.map((recipe: { id: string; }) => {
+                    if (typeof recipe === 'object' && recipe) return recipe.id;
+                    console.warn('Invalid recipe format:', recipe);
+                    return '';
+                }).filter((id: string) => id !== '');
+
+                setFavorites(new Set<string>(favoriteIds));
+            } else {
+                console.warn("Invalid favorites data format:", data);
+            }
+        } catch (e) {
+            console.error("Error fetching favorites:", e);
+        }
+    };
     const getAllRecipes = async (page: number = 1) => {
         try {
             setLoading(true);
@@ -74,6 +105,10 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm, recip
             setRecipeList(data.recipes);
             setPagination(data.pagination);
             setError(null);
+
+            if (userId) {
+                await getFavorites();
+            }
         } catch (e) {
             console.error("Error fetching recipes:", e);
             setError("Failed to load recipes");
@@ -88,13 +123,60 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm, recip
         }
     };
 
-    const handleFavoriteClick = async (recipeId: string) => {
+    const handleFavoriteClick = async (recipeId: string, e: React.MouseEvent) => {
+        if (!userId) return;
+        e.stopPropagation();
+
         try {
-            // Implement favorite functionality
+            const isFavorited = favorites.has(recipeId);
+
+            setFavorites(prev => {
+                const newFavorites = new Set(prev);
+                if (isFavorited) {
+                    newFavorites.delete(recipeId);
+                } else {
+                    newFavorites.add(recipeId);
+                }
+                return newFavorites;
+            });
+
+            if (isFavorited) {
+                await removeRecipeFromFavorites(recipeId);
+            } else {
+                await addRecipeToFavorites(recipeId);
+            }
+            await getFavorites();
         } catch (error) {
-            console.error('Error favoriting recipe:', error);
-            setError("Failed to set favorite");
+            console.error('Error handling favorite:', error);
+            setError("Failed to update favorite");
+            await getFavorites();
         }
+    };
+
+    const addRecipeToFavorites = async (recipeId: string) => {
+        const response = await getHTTP().post(`api/users/favorites/add`, JSON.stringify({
+            userId: userId,
+            recipeId
+        }));
+
+        if (!response.ok) {
+            throw new Error("Failed to add to favorites");
+        }
+
+        return response.json();
+    };
+
+    const removeRecipeFromFavorites = async (recipeId: string) => {
+        const response = await getHTTP().post(`api/users/favorites/delete`, JSON.stringify({
+            userId: userId,
+            recipeId
+        }));
+
+        if (!response.ok) {
+            throw new Error("Failed to remove from favorites");
+        }
+
+        return response.json();
     };
 
     const handleCardClick = (recipeId: string) => {
@@ -116,46 +198,48 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm, recip
             pageNumbers.push(i);
         }
 
+        //const vis = pagination.totalPages > 1;
+
         return (
             <div className="flex justify-center items-center gap-2 py-4">
-                <button
-                    onClick={() => handlePageChange(pagination.currentPage - 1)}
-                    disabled={pagination.currentPage === 1}
-                    className={`px-3 py-1 rounded-md ${
-                        darkMode
-                            ? 'bg-gray-700 text-white disabled:bg-gray-600'
-                            : 'bg-gray-200 text-gray-800 disabled:bg-gray-100'
-                    } disabled:cursor-not-allowed`}
-                >
-                    Previous
-                </button>
-
-                {pageNumbers.map(number => (
                     <button
-                        key={number}
-                        onClick={() => handlePageChange(number)}
+                        onClick={() => handlePageChange(pagination.currentPage - 1)}
+                        disabled={pagination.currentPage === 1}
                         className={`px-3 py-1 rounded-md ${
-                            pagination.currentPage === number
-                                ? (darkMode ? 'bg-purple-600 text-white' : 'bg-purple-500 text-white')
-                                : (darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-800')
-                        }`}
+                            darkMode
+                                ? 'bg-gray-700 text-white disabled:bg-gray-600'
+                                : 'bg-gray-200 text-gray-800 disabled:bg-gray-100'
+                        } disabled:cursor-not-allowed`}
                     >
-                        {number}
+                        Previous
                     </button>
-                ))}
 
-                <button
-                    onClick={() => handlePageChange(pagination.currentPage + 1)}
-                    disabled={pagination.currentPage === pagination.totalPages}
-                    className={`px-3 py-1 rounded-md ${
-                        darkMode
-                            ? 'bg-gray-700 text-white disabled:bg-gray-600'
-                            : 'bg-gray-200 text-gray-800 disabled:bg-gray-100'
-                    } disabled:cursor-not-allowed`}
-                >
-                    Next
-                </button>
-            </div>
+                    {pageNumbers.map(number => (
+                        <button
+                            key={number}
+                            onClick={() => handlePageChange(number)}
+                            className={`px-3 py-1 rounded-md ${
+                                pagination.currentPage === number
+                                    ? (darkMode ? 'bg-purple-600 text-white' : 'bg-purple-500 text-white')
+                                    : (darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-800')
+                            }`}
+                        >
+                            {number}
+                        </button>
+                    ))}
+
+                    <button
+                        onClick={() => handlePageChange(pagination.currentPage + 1)}
+                        disabled={pagination.currentPage === pagination.totalPages}
+                        className={`px-3 py-1 rounded-md ${
+                            darkMode
+                                ? 'bg-gray-700 text-white disabled:bg-gray-600'
+                                : 'bg-gray-200 text-gray-800 disabled:bg-gray-100'
+                        } disabled:cursor-not-allowed`}
+                    >
+                        Next
+                    </button>
+                </div>
         );
     };
 
@@ -183,38 +267,41 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm, recip
         ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
             <div className="max-w-6xl mx-auto px-8">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 py-6">
-                    {recipeList.map((food, index) => (
+                    {recipeList.map((recipe, index) => (
                         <div
                             key={index}
-                            onClick={() => handleCardClick(food.id)}
+                            onClick={() => handleCardClick(recipe.id)}
                             className={`rounded-xl overflow-hidden transition-all duration-300 relative cursor-pointer
                             ${darkMode
                                 ? 'bg-gray-800 shadow-lg shadow-black/20 hover:shadow-purple-500/10'
                                 : 'bg-white shadow-md hover:shadow-lg shadow-gray-200/50'}`}
                         >
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleFavoriteClick(food.id);
-                                }}
-                                className={`absolute top-2 right-2 z-10 p-2 rounded-full 
-                                ${darkMode
-                                    ? 'bg-gray-800/80 hover:bg-gray-700/80'
-                                    : 'bg-white/80 hover:bg-gray-50/80'}
-                                transition-all duration-200 backdrop-blur-sm`}
-                                aria-label="Toggle favorite"
-                            >
-                                <Heart
-                                    className={`w-5 h-5 transition-colors
-                                    ${darkMode ? 'stroke-white' : 'stroke-gray-600'}
-                                    hover:stroke-red-500 hover:fill-red-500`}
-                                />
-                            </button>
+                            {userId && (
+                                <button
+                                    onClick={(e) => handleFavoriteClick(recipe.id, e)}
+                                    className={`absolute top-2 right-2 z-10 p-2 rounded-full 
+                                    ${darkMode
+                                        ? 'bg-gray-800/80 hover:bg-gray-700/80'
+                                        : 'bg-white/80 hover:bg-gray-50/80'}
+                                    transition-all duration-200 backdrop-blur-sm`}
+                                    aria-label="Toggle favorite"
+                                >
+                                    <Heart
+                                        className={`w-5 h-5 transition-colors duration-200
+                                        ${favorites.has(recipe.id)
+                                            ? 'fill-red-500 stroke-red-500'
+                                            : darkMode
+                                                ? 'fill-transparent stroke-gray-400 hover:stroke-red-500'
+                                                : 'fill-transparent stroke-gray-500 hover:stroke-red-500'
+                                        }`}
+                                    />
+                                </button>
+                            )}
 
                             <div className="relative aspect-video">
                                 <img
-                                    src={food.recipeImage}
-                                    alt={food.title}
+                                    src={recipe.recipeImage}
+                                    alt={recipe.title}
                                     className="w-full h-full object-cover"
                                     width={16}
                                     height={16}
@@ -233,7 +320,7 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm, recip
                             <div className="p-4">
                                 <h3 className={`text-base font-medium truncate
                                 ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>
-                                    {food.title}
+                                    {recipe.title}
                                 </h3>
                             </div>
                         </div>

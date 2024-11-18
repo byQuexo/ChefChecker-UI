@@ -62,4 +62,5 @@ export interface FilterOptions {
 export interface RecipeData {
     recipes: Recipe[];
     pagination: PaginationData;
+    favorites?: boolean;
 }

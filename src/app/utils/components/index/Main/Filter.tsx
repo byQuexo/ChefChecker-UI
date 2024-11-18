@@ -5,6 +5,7 @@ import {Filter, Heart, ChefHat, BookOpen, Pizza, Soup, Salad} from 'lucide-react
 import React, { useState } from 'react';
 import rootStore from "@/app/utils/stores/globalStore";
 import {FilterOptions, RecipeData} from "@/app/utils/stores/types";
+import {getHTTP} from "@/app/utils/utils";
 
 interface FilterProps {
     onFilterChange: (filter: string) => void;
@@ -34,6 +35,8 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
         if (filter === 'my-recipes') {
             opts.userId = userId;
             opts.visibility = 'private';
+        } else if (filter === "favorites") {
+            opts.userId = userId;
         } else if (filter !== 'all') {
             opts.category = filter;
             if (userId) {
@@ -43,25 +46,25 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
 
         try {
             let response = null;
+            let data = null;
             if(!opts.favorites) {
-                response = await fetch('/api/recipes/search', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        searchTerms: '',
-                        opts: opts
-                    })
-                });
+                response = await getHTTP().post('/api/recipes/search', JSON.stringify({
+                    searchTerms: '',
+                    opts: opts
+                }));
+                if (!response?.ok) {
+                    throw new Error('Failed to fetch recipes');
+                }
+                data = await response?.json();
+            } else {
+                response = await getHTTP().get(`/api/users/favorites/${userId}`);
+                if (!response?.ok) {
+                    throw new Error('Failed to fetch recipes');
+                }
+                data = await response?.json();
+                data.favorites = true;
             }
 
-
-            if (!response?.ok) {
-                throw new Error('Failed to fetch recipes');
-            }
-
-            const data = await response?.json();
             onFilterChange(filter);
             onRecipeDataUpdate(data);
         } catch (error) {

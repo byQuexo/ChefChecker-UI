@@ -4,28 +4,21 @@ import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import rootStore from "@/app/utils/stores/globalStore";
-import { Recipe } from "@/app/utils/stores/types";
+import { PaginationData, Recipe, RecipeData } from "@/app/utils/stores/types";
 import { getHTTP } from "@/app/utils/utils";
 import { Heart } from "lucide-react";
-
-interface PaginationData {
-    currentPage: number;
-    pageSize: number;
-    totalPages: number;
-    totalRecipes: number;
-}
 
 interface Props {
     searchTerm?: string;
     filter?: string;
+    recipeData: RecipeData | null;
 }
 
-const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm }: Props) {
+const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm, recipeData }: Props) {
     const router = useRouter();
     const [recipeList, setRecipeList] = useState<Recipe[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [search, setSearch] = useState("");
     const [pagination, setPagination] = useState<PaginationData>({
         currentPage: 1,
         pageSize: 8,
@@ -34,25 +27,43 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm }: Pro
     });
     const darkMode = rootStore.darkMode;
 
-
+    // Update local state when recipeData changes
     useEffect(() => {
-        if (searchTerm) {
-            setSearch(searchTerm);
-            setPagination((prev) => ({ ...prev, currentPage: 1 }));
+        if (recipeData) {
+            setLoading(true);
+            try {
+                setRecipeList(recipeData.recipes);
+                setPagination(recipeData.pagination);
+                setError(null);
+            } catch (e) {
+                console.error("Error updating recipes:", e);
+                setError("Failed to update recipes");
+            } finally {
+                setLoading(false);
+            }
         }
-    }, [searchTerm]);
+    }, [recipeData]);
+
+    // Handle initial load and search
+    useEffect(() => {
+        if (!recipeData) {
+            getAllRecipes(pagination.currentPage);
+        }
+    }, [searchTerm, pagination.currentPage]);
 
     const getAllRecipes = async (page: number = 1) => {
         try {
             setLoading(true);
-            const response = search
+            const response = searchTerm
                 ? await getHTTP().post(
-                      "api/recipes/search",
-                      JSON.stringify({
-                          searchTerms: search,
-                          opts: {},
-                      })
-                  )
+                    "api/recipes/search",
+                    JSON.stringify({
+                        searchTerms: searchTerm,
+                        opts: {
+                            page
+                        },
+                    })
+                )
                 : await getHTTP().get(`api/recipes/search?page=${page}`);
             const data = await response.json();
 
@@ -71,10 +82,6 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm }: Pro
         }
     };
 
-    useEffect(() => {
-        getAllRecipes(pagination.currentPage);
-    }, [search, pagination.currentPage]);
-
     const handlePageChange = (newPage: number) => {
         if (newPage >= 1 && newPage <= pagination.totalPages) {
             setPagination((prev) => ({ ...prev, currentPage: newPage }));
@@ -83,7 +90,7 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm }: Pro
 
     const handleFavoriteClick = async (recipeId: string) => {
         try {
-            console.log(recipeId);
+            // Implement favorite functionality
         } catch (error) {
             console.error('Error favoriting recipe:', error);
             setError("Failed to set favorite");
@@ -91,10 +98,8 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm }: Pro
     };
 
     const handleCardClick = (recipeId: string) => {
-            router.push(`/recipes/${recipeId}`);
+        router.push(`/recipes/${recipeId}`);
     };
-
-
 
     const Pagination = () => {
         const pageNumbers = [];

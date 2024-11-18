@@ -4,13 +4,15 @@ import { observer } from 'mobx-react-lite';
 import {Filter, Heart, ChefHat, BookOpen, Pizza, Soup, Salad} from 'lucide-react';
 import React, { useState } from 'react';
 import rootStore from "@/app/utils/stores/globalStore";
+import {FilterOptions, RecipeData} from "@/app/utils/stores/types";
 
 interface FilterProps {
     onFilterChange: (filter: string) => void;
     currentFilter: string;
+    onRecipeDataUpdate: (data: RecipeData) => void;
 }
 
-const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentFilter }) => {
+const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentFilter, onRecipeDataUpdate }) => {
     const darkMode = rootStore.darkMode;
     const userId = rootStore.userId;
 
@@ -23,6 +25,49 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
     ];
 
     const [isOpen, setIsOpen] = useState(false);
+
+    const handleFilterChange = async (filter: string) => {
+        const opts: FilterOptions = {
+            page: 1
+        };
+
+        if (filter === 'my-recipes') {
+            opts.userId = userId;
+            opts.visibility = 'private';
+        } else if (filter !== 'all') {
+            opts.category = filter;
+            if (userId) {
+                opts.userId = userId;
+            }
+        }
+
+        try {
+            let response = null;
+            if(!opts.favorites) {
+                response = await fetch('/api/recipes/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        searchTerms: '',
+                        opts: opts
+                    })
+                });
+            }
+
+
+            if (!response?.ok) {
+                throw new Error('Failed to fetch recipes');
+            }
+
+            const data = await response?.json();
+            onFilterChange(filter);
+            onRecipeDataUpdate(data);
+        } catch (error) {
+            console.error('Error fetching recipes:', error);
+        }
+    };
 
     // Helper function to get the current filter label
     const getCurrentFilterLabel = () => {
@@ -60,7 +105,7 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
                                         <button
                                             key={category.id}
                                             onClick={() => {
-                                                onFilterChange(category.id);
+                                                handleFilterChange(category.id);
                                                 setIsOpen(false);
                                             }}
                                             className={`flex items-center w-full px-4 py-2 text-sm transition-colors
@@ -83,7 +128,7 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
                     {userId && (
                         <div className="flex gap-2">
                             <button
-                                onClick={() => onFilterChange('my-recipes')}
+                                onClick={() => handleFilterChange('my-recipes')}
                                 className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200
                                     ${currentFilter === 'my-recipes'
                                     ? (darkMode
@@ -98,7 +143,7 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
                             </button>
 
                             <button
-                                onClick={() => onFilterChange('favorites')}
+                                onClick={() => handleFilterChange('favorites')}
                                 className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200
                                     ${currentFilter === 'favorites'
                                     ? (darkMode
@@ -124,7 +169,7 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
                             {getCurrentFilterLabel()}
                         </span>
                         <button
-                            onClick={() => onFilterChange('all')}
+                            onClick={() => handleFilterChange('all')}
                             className={`text-sm ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}
                         >
                             Clear

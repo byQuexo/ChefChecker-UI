@@ -10,12 +10,15 @@ import { useRouter } from 'next/navigation';
 import globalStore from "@/app/utils/stores/globalStore";
 import ProfileButton from "@/app/utils/components/index/Header/ProfileButton";
 import RecipeFilter from "@/app/utils/components/index/Main/Filter";
+import {RecipeData} from "@/app/utils/stores/types";
+
 
 const NavBar: React.FC = observer(function NavBar() {
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState("");
     const [isUpdating, setIsUpdating] = useState(false);
     const [currentFilter, setCurrentFilter] = useState("all");
+    const [recipeData, setRecipeData] = useState<RecipeData | null>(null);
 
     const userId = globalStore.userId;
 
@@ -25,6 +28,10 @@ const NavBar: React.FC = observer(function NavBar() {
 
     const handleFilterChange = (filter: string) => {
         setCurrentFilter(filter);
+    };
+
+    const handleRecipeDataUpdate = (data: RecipeData) => {
+        setRecipeData(data);
     };
 
     const darkMode = rootStore.darkMode;
@@ -106,11 +113,15 @@ const NavBar: React.FC = observer(function NavBar() {
         </nav>
             <RecipeFilter
                 onFilterChange={handleFilterChange}
-                currentFilter={currentFilter} />
-    <FoodGrid searchTerm={searchTerm} filter={currentFilter}/>
-</>
-)
-    ;
+                currentFilter={currentFilter}
+                onRecipeDataUpdate={handleRecipeDataUpdate}
+            />
+            <FoodGrid
+                searchTerm={searchTerm}
+                filter={currentFilter}
+                recipeData={recipeData}
+            />
+</>);
 });
 
 export default NavBar;

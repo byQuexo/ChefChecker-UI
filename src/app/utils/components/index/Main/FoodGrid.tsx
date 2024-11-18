@@ -1,11 +1,12 @@
-"use client"
+"use client";
 
-import { getHTTP } from "@/app/utils/utils";
+import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
-import { Recipe } from "@/app/utils/stores/types";
 import { observer } from "mobx-react-lite";
 import rootStore from "@/app/utils/stores/globalStore";
-import { Heart } from 'lucide-react';
+import { Recipe } from "@/app/utils/stores/types";
+import { getHTTP } from "@/app/utils/utils";
+import { Heart } from "lucide-react";
 
 interface PaginationData {
     currentPage: number;
@@ -16,10 +17,11 @@ interface PaginationData {
 
 interface Props {
     searchTerm?: string;
-    filter?: string
+    filter?: string;
 }
 
 const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm }: Props) {
+    const router = useRouter();
     const [recipeList, setRecipeList] = useState<Recipe[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -28,15 +30,15 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm }: Pro
         currentPage: 1,
         pageSize: 8,
         totalPages: 1,
-        totalRecipes: 0
-    }); // Default
-
+        totalRecipes: 0,
+    });
     const darkMode = rootStore.darkMode;
+
 
     useEffect(() => {
         if (searchTerm) {
             setSearch(searchTerm);
-            setPagination(prev => ({ ...prev, currentPage: 1 }));
+            setPagination((prev) => ({ ...prev, currentPage: 1 }));
         }
     }, [searchTerm]);
 
@@ -44,26 +46,26 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm }: Pro
         try {
             setLoading(true);
             const response = search
-                ? await getHTTP().post('api/recipes/search', JSON.stringify({
-                    searchTerms: search,
-                    opts: {
-
-                    }
-                })
-                ) : await getHTTP().get(`api/recipes/search?page=${page}`);
-
+                ? await getHTTP().post(
+                      "api/recipes/search",
+                      JSON.stringify({
+                          searchTerms: search,
+                          opts: {},
+                      })
+                  )
+                : await getHTTP().get(`api/recipes/search?page=${page}`);
             const data = await response.json();
 
             if (!data || !data.recipes) {
-                throw new Error('No recipes found');
+                throw new Error("No recipes found");
             }
 
             setRecipeList(data.recipes);
             setPagination(data.pagination);
             setError(null);
         } catch (e) {
-            console.error('Error fetching recipes:', e);
-            setError('Failed to load recipes');
+            console.error("Error fetching recipes:", e);
+            setError("Failed to load recipes");
         } finally {
             setLoading(false);
         }
@@ -75,18 +77,24 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm }: Pro
 
     const handlePageChange = (newPage: number) => {
         if (newPage >= 1 && newPage <= pagination.totalPages) {
-            setPagination(prev => ({ ...prev, currentPage: newPage }));
+            setPagination((prev) => ({ ...prev, currentPage: newPage }));
         }
     };
 
     const handleFavoriteClick = async (recipeId: string) => {
         try {
-            console.log(recipeId)
+            console.log(recipeId);
         } catch (error) {
             console.error('Error favoriting recipe:', error);
-            setError('Failed to set favorite');
+            setError("Failed to set favorite");
         }
     };
+
+    const handleCardClick = (recipeId: string) => {
+            router.push(`/recipes/${recipeId}`);
+    };
+
+
 
     const Pagination = () => {
         const pageNumbers = [];
@@ -173,13 +181,17 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm }: Pro
                     {recipeList.map((food, index) => (
                         <div
                             key={index}
-                            className={`rounded-xl overflow-hidden transition-all duration-300 relative 
+                            onClick={() => handleCardClick(food.id)}
+                            className={`rounded-xl overflow-hidden transition-all duration-300 relative cursor-pointer
                             ${darkMode
                                 ? 'bg-gray-800 shadow-lg shadow-black/20 hover:shadow-purple-500/10'
                                 : 'bg-white shadow-md hover:shadow-lg shadow-gray-200/50'}`}
                         >
                             <button
-                                onClick={() => handleFavoriteClick(food.id)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleFavoriteClick(food.id);
+                                }}
                                 className={`absolute top-2 right-2 z-10 p-2 rounded-full 
                                 ${darkMode
                                     ? 'bg-gray-800/80 hover:bg-gray-700/80'
@@ -222,7 +234,7 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm }: Pro
                         </div>
                     ))}
                 </div>
-                {pagination.totalPages > 1 && <Pagination/>}
+                {pagination.totalPages > 1 && <Pagination />}
             </div>
         </div>
     );

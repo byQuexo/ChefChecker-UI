@@ -43,3 +43,9 @@ export interface RegisterResponse{
 export interface LoginResponse{
     user: User;
 }
+
+export interface NavProps {
+    isLoginPage?: boolean;
+    showRecipeFilter?: boolean;
+    showFoodGrid?: boolean;
+}

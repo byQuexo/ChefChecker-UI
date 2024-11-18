@@ -8,12 +8,16 @@ import { observer } from 'mobx-react-lite';
 import rootStore from "@/app/utils/stores/globalStore";
 import globalStore from "@/app/utils/stores/globalStore";
 import { useRouter } from 'next/navigation';
+import {Loader} from 'lucide-react';
 
 const LoginRegister = observer(() => {
     const [isLogin, setIsLogin] = useState(true);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [message, setMessage] = useState('');
     const router = useRouter();
     const darkMode = rootStore.darkMode;
 
@@ -22,21 +26,47 @@ const LoginRegister = observer(() => {
     }
 
     const handleRegisterSubmit = async () => {
+        setIsLoading(true);
+        setErrorMessage('');
+        setMessage('');
+        
         try {
             const response = await authStore.register(username, email, password);
             if (response) {
                 globalStore.setUserId(response.user.id);
                 globalStore.setDarkMode(response.user.preference.darkMode === "dark")
-                router.push("/")
+                setMessage("registration successful");
+                setTimeout(() =>{
+                    setIsLoading(false);
+                    setMessage('');
+                    router.push("/");
+                    
+                }, 3000);
+                
             } else {
-                console.log("registration failed");
+                setErrorMessage("Registration failed! Please try again later");
+                setEmail('');
+                setPassword('');
+                setIsLoading(false);
+                setTimeout(() =>{
+                    setErrorMessage('');
+                }, 3000);
             }
         } catch (error) {
             console.error("an error occured during registration:", error);
-        }
+            setErrorMessage("an error occured during Registration");
+            setIsLoading(false);
+            setEmail('');
+            setPassword('');
+            router.push("/authentication");;
+        } 
+
     };
 
     const handleLoginSubmit = async () => {
+        setIsLoading(true);
+        setErrorMessage('');
+        setMessage('');
         try {
             const response = await authStore.login(email, password);
             if (response) {
@@ -44,18 +74,56 @@ const LoginRegister = observer(() => {
                 globalStore.setDarkMode(response.user.preference.darkMode === "dark")
                 globalStore.setProfilePicture(response.user.profileImage)
                 globalStore.setUserFavorites(String(response.user.favorites))
-                router.push("/")
+
+                localStorage.setItem('isLoggedIn', 'true');
+                setMessage("login successful");
+                setTimeout(() =>{
+                    setIsLoading(false);
+                    setMessage('');
+                    router.push("/");
+                    
+                }, 2000);
+                
             } else {
-                console.log("login failed");
+                setEmail('');
+                setPassword('');
+                setErrorMessage("Login failed! please try again later");
+                setIsLoading(false);
+                setTimeout(() =>{
+                    setErrorMessage('');
+                }, 3000);
             }
         } catch (error) {
             console.error("an error occured during logging in:", error);
-        }
+            setErrorMessage("an error occured during logging in");
+            setIsLoading(false);
+            setEmail('');
+            setPassword('');
+            router.push("/authentication");
+            
+        } 
+
     };
 
     return (
+        <div className={`min-h-screen flex flex-col`}>
+        
+        { errorMessage && (
+        <div className='absolute top-4 right-4 bg-red-600 text-white p-4 rounded shadow-lg z-50'>
+            {errorMessage}
+        </div>
+        )}
+
+        {  message && (
+        <div className='absolute top-4 right-4 bg-green-600 text-white p-4 rounded shadow-lg z-50'>
+            {message}
+        </div>
+        )}
+
+       
         <div className={`min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 
             ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+            
             <div className={`max-w-md w-full space-y-8 p-8 rounded-xl shadow-2xl 
                 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
                 <div className="text-center">
@@ -67,53 +135,32 @@ const LoginRegister = observer(() => {
                         ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                         {isLogin ? 'Sign in to your account' : 'Create your account'}
                     </p>
+                    
                 </div>
 
-                <div className="mt-8 flex justify-center">
-                    <div className={`relative flex rounded-lg p-1 
-                        ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                        <button
-                            onClick={() => handleLoginState(true)}
-                            className={`relative px-4 py-2 text-sm font-medium rounded-md transition-all duration-200
-                                ${isLogin
-                                ? (darkMode
-                                    ? 'bg-purple-600 text-white'
-                                    : 'bg-purple-500 text-white')
-                                : (darkMode
-                                    ? 'text-gray-300 hover:text-white'
-                                    : 'text-gray-700 hover:text-gray-900')}`}
-                        >
-                            Login
-                        </button>
-                        <button
-                            onClick={() => handleLoginState(false)}
-                            className={`relative px-4 py-2 text-sm font-medium rounded-md transition-all duration-200
-                                ${!isLogin
-                                ? (darkMode
-                                    ? 'bg-purple-600 text-white'
-                                    : 'bg-purple-500 text-white')
-                                : (darkMode
-                                    ? 'text-gray-300 hover:text-white'
-                                    : 'text-gray-700 hover:text-gray-900')}`}
-                        >
-                            Register
-                        </button>
-                    </div>
+                <div className="flex justify-center items-center mt-4">
+                    {isLoading && 
+                    <Loader className="w-10 h-10 ml-2" />}
+                        
                 </div>
-
-                <div className="mt-8">
-                    {isLogin ? (
+                               
+                <div className={`mt-6 text-center text-sm 
+                    ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
+                        {isLogin ? (
                         <Login
                             submitLogin={handleLoginSubmit}
+                            
                             email={email}
                             password={password}
                             setEmail={setEmail}
                             setPassword={setPassword}
                             handleLoginState={handleLoginState}
+                            darkMode={darkMode}
                         />
                     ) : (
                         <Register
                             submitRegister={handleRegisterSubmit}
+                            
                             username={username}
                             email={email}
                             password={password}
@@ -121,10 +168,10 @@ const LoginRegister = observer(() => {
                             setEmail={setEmail}
                             setPassword={setPassword}
                             handleLoginState={handleLoginState}
+                            darkMode={darkMode}
                         />
                     )}
                 </div>
-
                 <div className={`mt-6 text-center text-sm 
                     ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     {isLogin ? (
@@ -156,6 +203,7 @@ const LoginRegister = observer(() => {
                     )}
                 </div>
             </div>
+        </div>
         </div>
     );
 });

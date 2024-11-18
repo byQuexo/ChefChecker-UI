@@ -4,7 +4,9 @@ import rootStore from "@/app/utils/stores/globalStore";
 function HomeContent() {
     return (
         <div className={`min-h-screen flex flex-col ${rootStore.darkMode ? 'dark bg-gray-900' : 'bg-white'}`}>
-            <Navbar />
+            <Navbar isLoginPage={false} 
+          showFoodGrid={true} 
+          showRecipeFilter={true}/>
         </div>
     );
 }

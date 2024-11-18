@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
-import { Pencil, X } from "lucide-react";
+import { Pencil, X, ArrowLeft } from "lucide-react";
 import { Recipe, Comment } from "../../utils/stores/types";
 import { getHTTP } from "../../utils/utils";
 import rootStore from "../../utils/stores/globalStore";
+import { useRouter } from "next/navigation";
 
 type RecipePageProps = {
   params: { recipeId: string };
@@ -18,6 +19,7 @@ interface UserProfile {
 }
 
 const RecipePage: React.FC<RecipePageProps> = observer(({ params }) => {
+  const router = useRouter();
   const { recipeId } = params;
 
   const [recipe, setRecipe] = useState<Recipe | null>(null);
@@ -199,12 +201,25 @@ return (
     }`}
   >
     <div
-      className={`max-w-4xl mx-auto p-6 rounded-lg shadow-lg ${
+      className={`max-w-4xl mx-auto p-6 rounded-lg shadow-lg relative ${
         darkMode ? "bg-gray-800" : "bg-white"
       }`}
     >
 
-      <div className="relative mb-6">
+    <div className="p-6 absolute left-2 top-2">
+          {/* Back Button */}
+          <button
+            onClick={() => router.push("/")} // Redirect to the home page
+            className="flex items-center space-x-2 text-purple-500 hover:text-purple-600 transition"
+          >
+            <ArrowLeft className="w-5 h-5" /> {/* The back arrow icon */}
+            <span>Back</span> {/* Optional text label */}
+          </button>
+
+          {/* Rest of your component */}
+      </div>
+
+      <div className="relative mb-6 mt-12">
         <img
           src={editedData.imageSrc}
           alt={recipe.title}

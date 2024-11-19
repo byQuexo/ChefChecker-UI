@@ -21,12 +21,10 @@ class RootStore {
             const storedUserId = window.localStorage.getItem('id');
             const storedDarkMode = window.localStorage.getItem('darkMode');
             const profilePicture = window.localStorage.getItem('profilePicture')
-            const userFavorites = window.localStorage.getItem('userFavorites')
 
             this.currentUserId = storedUserId;
             this.userThemeMode = storedDarkMode === 'true';
             this.userProfilePicture = profilePicture;
-            this.userFavorites = userFavorites
 
             if (storedDarkMode === null) {
                 window.localStorage.setItem('darkMode', "false");

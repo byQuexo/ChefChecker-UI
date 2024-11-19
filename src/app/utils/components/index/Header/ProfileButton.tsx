@@ -1,10 +1,8 @@
 "use client"
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
 import rootStore from '@/app/utils/stores/globalStore';
 import { User } from 'lucide-react';
-
 
 interface Props {
     userId: string,
@@ -12,11 +10,9 @@ interface Props {
     handlePreferences: () => void;
 }
 
-
 const ProfileButton = ({ userId, darkMode, handlePreferences }: Props) => {
     const [profilePic, setProfilePic] = useState<string | null>('');
     const [isLoading, setIsLoading] = useState(true);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [error, setError] = useState(false);
 
     useEffect(() => {
@@ -54,18 +50,16 @@ const ProfileButton = ({ userId, darkMode, handlePreferences }: Props) => {
                 <div className="absolute inset-0 animate-pulse bg-gray-300 dark:bg-gray-600" />
             ) : profilePic ? (
                 <>
-                    <Image
-                        src={profilePic}
-                        alt="Profile"
-                        fill
-                        className="object-cover transition-transform duration-200 group-hover:scale-105"
-                        sizes="40px"
-                        onError={() => setError(true)}
-                        priority
-                    />
-                    <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10
-                        transition-opacity duration-200"
-                    />
+                    <div className="relative w-full h-full">
+                        <img
+                            src={profilePic}
+                            alt="Profile"
+                            className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10
+                            transition-opacity duration-200"
+                        />
+                    </div>
                 </>
             ) : (
                 <div className={`flex items-center justify-center w-full h-full

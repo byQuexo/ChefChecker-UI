@@ -40,10 +40,10 @@ const LoginRegister = observer(() => {
         try {
             const response = await authStore.login(email, password);
             if (response) {
+                console.log(response)
                 globalStore.setUserId(response.user.id);
                 globalStore.setDarkMode(response.user.preference.darkMode === "dark")
                 globalStore.setProfilePicture(response.user.profileImage)
-                globalStore.setUserFavorites(String(response.user.favorites))
                 router.push("/")
             } else {
                 console.log("login failed");

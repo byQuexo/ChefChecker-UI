@@ -58,7 +58,7 @@ const LoginRegister = observer(() => {
             setIsLoading(false);
             setEmail('');
             setPassword('');
-            router.push("/authentication");;
+            router.push("/authentication");
         } 
 
     };
@@ -74,7 +74,6 @@ const LoginRegister = observer(() => {
                 globalStore.setUserId(response.user.id);
                 globalStore.setDarkMode(response.user.preference.darkMode === "dark")
                 globalStore.setProfilePicture(response.user.profileImage)
-                globalStore.setUserFavorites(String(response.user.favorites))
 
                 localStorage.setItem('isLoggedIn', 'true');
                 setMessage("login successful");

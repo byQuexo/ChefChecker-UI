@@ -8,9 +8,6 @@ export default function Authentication(){
   
     return(
       <div className={`min-h-screen flex flex-col ${rootStore.darkMode ? 'dark bg-gray-900' : 'bg-white'}`}>
-          <NavBar isLoginPage={true} 
-          showFoodGrid={false} 
-          showRecipeFilter={false}/>
           <LoginRegister  />
         </div>
     )

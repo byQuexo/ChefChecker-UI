@@ -24,7 +24,7 @@ const NewRecipePage: React.FC = () => {
     };
 
     initPage();
-  }, []);
+  }, [router]);
 
   const [newRecipe, setNewRecipe] = useState({
     title: "",

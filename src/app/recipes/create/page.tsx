@@ -12,13 +12,18 @@ const NewRecipePage: React.FC = () => {
   const [darkMode, setDarkMode] = useState(false); 
 
   useEffect(() => {
-    const initializeDarkMode = async () => {
+    const initPage = async () => {
       const isDarkMode = rootStore.darkMode;
+      const userId = rootStore.userId;
+
+      if (!userId) {
+        router.push('/authentication')
+      }
       setDarkMode(isDarkMode);
       setLoading(false); 
     };
 
-    initializeDarkMode();
+    initPage();
   }, []);
 
   const [newRecipe, setNewRecipe] = useState({

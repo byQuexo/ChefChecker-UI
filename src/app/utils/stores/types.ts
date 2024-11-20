@@ -44,8 +44,23 @@ export interface LoginResponse{
     user: User;
 }
 
-export interface NavProps {
-    isLoginPage?: boolean;
-    showRecipeFilter?: boolean;
-    showFoodGrid?: boolean;
+export interface PaginationData {
+    currentPage: number;
+    pageSize: number;
+    totalPages: number;
+    totalRecipes: number;
+}
+
+export interface FilterOptions {
+    page?: number;
+    userId?: string | null;
+    visibility?: 'public' | 'private';
+    category?: string;
+    favorites?: boolean;
+}
+
+export interface RecipeData {
+    recipes: Recipe[];
+    pagination: PaginationData;
+    favorites?: boolean;
 }

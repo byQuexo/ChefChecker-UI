@@ -70,6 +70,7 @@ const LoginRegister = observer(() => {
         try {
             const response = await authStore.login(email, password);
             if (response) {
+                console.log(response)
                 globalStore.setUserId(response.user.id);
                 globalStore.setDarkMode(response.user.preference.darkMode === "dark")
                 globalStore.setProfilePicture(response.user.profileImage)
@@ -120,7 +121,16 @@ const LoginRegister = observer(() => {
         </div>
         )}
 
-       
+       <div className="absolute left-12 top-12">
+            <button onClick={() => router.push("/")}
+            className={`flex items-center space-x-2 p-6 rounded-lg transition duration-200
+            ${darkMode 
+            ? 'bg-gray-800 text-white hover:bg-gray-700' : 'bg-gray-100 text-purple-800 hover:bg-purple-300'}`}>
+                <House className='w-8 h-8'/>
+                
+            </button>
+        </div>
+        
         <div className={`min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 
             ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
             
@@ -140,8 +150,40 @@ const LoginRegister = observer(() => {
 
                 <div className="flex justify-center items-center mt-4">
                     {isLoading && 
-                    <Loader className="w-10 h-10 ml-2" />}
+                    <Loader className="w-10 h-10 ml-2 text-green-500" />}
                         
+                </div>
+              
+               <div className="mt-8 flex justify-center">
+                    <div className={`relative flex rounded-lg p-1 
+                        ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                        <button
+                            onClick={() => handleLoginState(true)}
+                            className={`relative px-4 py-2 text-sm font-medium rounded-md transition-all duration-200
+                                ${isLogin
+                                ? (darkMode
+                                    ? 'bg-purple-600 text-white'
+                                    : 'bg-purple-500 text-white')
+                                : (darkMode
+                                    ? 'text-gray-500 hover:text-white'
+                                    : 'text-gray-500 hover:text-gray-900')}`}
+                        >
+                            Login
+                        </button>
+                        <button
+                            onClick={() => handleLoginState(false)}
+                            className={`relative px-4 py-2 text-sm font-medium rounded-md transition-all duration-200
+                                ${!isLogin
+                                ? (darkMode
+                                    ? 'bg-purple-600 text-white'
+                                    : 'bg-purple-500 text-white')
+                                : (darkMode
+                                    ? 'text-black-300 hover:text-white'
+                                    : 'text-gray-700 hover:text-gray-900')}`}
+                        >
+                            Register
+                        </button>
+                    </div>
                 </div>
                                
                 <div className={`mt-6 text-center text-sm 

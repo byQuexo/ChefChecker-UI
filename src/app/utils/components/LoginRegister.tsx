@@ -8,7 +8,7 @@ import { observer } from 'mobx-react-lite';
 import rootStore from "@/app/utils/stores/globalStore";
 import globalStore from "@/app/utils/stores/globalStore";
 import { useRouter } from 'next/navigation';
-import {Loader} from 'lucide-react';
+import {Loader, House} from 'lucide-react';
 
 const LoginRegister = observer(() => {
     const [isLogin, setIsLogin] = useState(true);

@@ -4,25 +4,80 @@ import { observer } from 'mobx-react-lite';
 import {Filter, Heart, ChefHat, BookOpen, Pizza, Soup, Salad} from 'lucide-react';
 import React, { useState } from 'react';
 import rootStore from "@/app/utils/stores/globalStore";
+import {FilterOptions, RecipeData} from "@/app/utils/stores/types";
+import {getHTTP} from "@/app/utils/utils";
 
 interface FilterProps {
     onFilterChange: (filter: string) => void;
     currentFilter: string;
+    onRecipeDataUpdate: (data: RecipeData) => void;
 }
 
-const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentFilter }) => {
+const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentFilter, onRecipeDataUpdate }) => {
     const darkMode = rootStore.darkMode;
     const userId = rootStore.userId;
 
     const categories = [
         { id: 'all', label: 'All Recipes', icon: BookOpen },
-        { id: '1', label: 'Noodles', icon: Soup },
-        { id: '2', label: 'Pizza', icon: Pizza },
-        { id: '3', label: 'Burger', icon: ChefHat },
-        { id: '4', label: 'Asia', icon: Salad },
+        { id: 'Noodles', label: 'Noodles', icon: Soup },
+        { id: 'Pizza', label: 'Pizza', icon: Pizza },
+        { id: 'Burger', label: 'Burger', icon: ChefHat },
+        { id: 'Asia', label: 'Asia', icon: Salad },
     ];
 
     const [isOpen, setIsOpen] = useState(false);
+
+    const handleFilterChange = async (filter: string) => {
+        const opts: FilterOptions = {
+            page: 1
+        };
+
+        if (filter === 'my-recipes') {
+            opts.userId = userId;
+            opts.visibility = 'private';
+        } else if (filter === "favorites") {
+            opts.userId = userId;
+        } else if (filter !== 'all') {
+            opts.category = filter;
+            if (userId) {
+                opts.userId = userId;
+            }
+        }
+
+        try {
+            let response = null;
+            let data = null;
+            if(!opts.favorites) {
+                response = await getHTTP().post('/api/recipes/search', JSON.stringify({
+                    searchTerms: '',
+                    opts: opts
+                }));
+                if (!response?.ok) {
+                    throw new Error('Failed to fetch recipes');
+                }
+                data = await response?.json();
+            } else {
+                response = await getHTTP().get(`/api/users/favorites/${userId}`);
+                if (!response?.ok) {
+                    throw new Error('Failed to fetch recipes');
+                }
+                data = await response?.json();
+                data.favorites = true;
+            }
+
+            onFilterChange(filter);
+            onRecipeDataUpdate(data);
+        } catch (error) {
+            console.error('Error fetching recipes:', error);
+        }
+    };
+
+    // Helper function to get the current filter label
+    const getCurrentFilterLabel = () => {
+        if (currentFilter === 'my-recipes') return 'My Recipes';
+        if (currentFilter === 'favorites') return 'Favorites';
+        return categories.find(c => c.id === currentFilter)?.label || '';
+    };
 
     return (
         <div className={`w-full transition-colors duration-200 
@@ -53,7 +108,7 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
                                         <button
                                             key={category.id}
                                             onClick={() => {
-                                                onFilterChange(category.id);
+                                                handleFilterChange(category.id);
                                                 setIsOpen(false);
                                             }}
                                             className={`flex items-center w-full px-4 py-2 text-sm transition-colors
@@ -76,7 +131,7 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
                     {userId && (
                         <div className="flex gap-2">
                             <button
-                                onClick={() => onFilterChange('my-recipes')}
+                                onClick={() => handleFilterChange('my-recipes')}
                                 className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200
                                     ${currentFilter === 'my-recipes'
                                     ? (darkMode
@@ -91,7 +146,7 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
                             </button>
 
                             <button
-                                onClick={() => onFilterChange('favorites')}
+                                onClick={() => handleFilterChange('favorites')}
                                 className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200
                                     ${currentFilter === 'favorites'
                                     ? (darkMode
@@ -114,12 +169,10 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
                             Active Filter:
                         </span>
                         <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                            {categories.find(c => c.id === currentFilter)?.label ||
-                            currentFilter === 'my-recipes' ? 'My Recipes' :
-                                currentFilter === 'favorites' ? 'Favorites' : ''}
+                            {getCurrentFilterLabel()}
                         </span>
                         <button
-                            onClick={() => onFilterChange('all')}
+                            onClick={() => handleFilterChange('all')}
                             className={`text-sm ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}
                         >
                             Clear

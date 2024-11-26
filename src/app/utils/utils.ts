@@ -18,6 +18,16 @@ export const getHTTP = () => {
                     "Content-Type": "application/json",
                 },
             });
-        }
+        },
+
+        patch: async (url: string, data: Record<string, unknown>) => {
+            return await fetch(url, {
+              method: "PATCH",
+              body: JSON.stringify(data),
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+          },
     }
 }

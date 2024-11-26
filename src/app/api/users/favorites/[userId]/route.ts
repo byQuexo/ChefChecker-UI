@@ -32,10 +32,16 @@ export async function GET(req: Request,
         const favoriteRecipes = recipes.map(recipe => ({
             id: recipe.id,
             title: recipe.title,
+            recipeImage: recipe.recipeImage,
+            ingredients: recipe.ingredients,
+            instructions: recipe.instructions,
+            category: recipe.category,
+            visibility: recipe.visibility,
+            userId: recipe.userId
         }));
 
         return Response.json({
-            favorites: favoriteRecipes,
+            recipes: favoriteRecipes,
             totalFavorites: favoriteRecipes.length
         }, { status: 200 });
 

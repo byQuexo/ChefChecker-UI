@@ -7,7 +7,6 @@ class RootStore {
     private isInitialized: boolean = false;
     private userProfilePicture: string | null = null;
     private isUpdatingTheme: boolean = false;
-    private userFavorites: string | null = null;
 
 
     constructor() {
@@ -21,12 +20,10 @@ class RootStore {
             const storedUserId = window.localStorage.getItem('id');
             const storedDarkMode = window.localStorage.getItem('darkMode');
             const profilePicture = window.localStorage.getItem('profilePicture')
-            const userFavorites = window.localStorage.getItem('userFavorites')
 
             this.currentUserId = storedUserId;
             this.userThemeMode = storedDarkMode === 'true';
             this.userProfilePicture = profilePicture;
-            this.userFavorites = userFavorites
 
             if (storedDarkMode === null) {
                 window.localStorage.setItem('darkMode', "false");
@@ -59,14 +56,6 @@ class RootStore {
 
         if (typeof window !== 'undefined' && profilePicture) {
             window.localStorage.setItem('profilePicture', profilePicture);
-        }
-    }
-
-    public setUserFavorites(userFavorites: string): void {
-        this.userFavorites = userFavorites;
-
-        if (typeof window !== 'undefined' && userFavorites) {
-            window.localStorage.setItem('profilePicture', userFavorites);
         }
     }
 
@@ -127,13 +116,6 @@ class RootStore {
             this.initializeStore();
         }
         return this.userProfilePicture;
-    }
-
-    get usersFavorites(): string | null {
-        if (!this.isInitialized) {
-            this.initializeStore();
-        }
-        return this.userFavorites;
     }
 
     public clearStore(): void {

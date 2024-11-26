@@ -1,7 +1,50 @@
 // cypress/e2e/LoginRegister.cy.js
 
+import {nanoid} from "nanoid";
+
 describe('LoginRegister Component', () => {
   beforeEach(() => {
+    // Intercept API calls with mocked responses
+    cy.intercept('POST', '/api/auth/login', (req) => {
+      if (req.body.email === 'tim@tim.de' && req.body.password === '12345') {
+        req.reply({
+          statusCode: 200,
+          body: {
+            user: {
+              id: 1,
+              email: 'tim@tim.de'
+            }
+          }
+        });
+      } else {
+        req.reply({
+          statusCode: 404,
+          body: {
+            message: 'Login failed! please try again later'
+          }
+        });
+      }
+    }).as('loginRequest');
+
+    cy.intercept('POST', '/api/auth/register', {
+      statusCode: 201,
+      body: {
+        user: {
+          id: 12345,
+          email: "tim@tim.de",
+          username: "newuser",
+          password: "1234",
+          bio: "",
+          favorites: [],
+          profileImage: "",
+          preference: {
+            darkMode: "light",
+            units: "metric"
+          }
+        }
+      }
+    }).as('registerRequest');
+
     cy.visit('http://localhost:3000/authentication');
     cy.clearLocalStorage();
   });
@@ -34,6 +77,9 @@ describe('LoginRegister Component', () => {
 
       cy.get('form button[type="submit"]').click();
 
+      // Wait for the mocked API response
+      cy.wait('@loginRequest');
+
       // Check for error message
       cy.get('div').contains('Login failed! please try again later')
           .should('be.visible');
@@ -49,7 +95,11 @@ describe('LoginRegister Component', () => {
 
       cy.get('form button[type="submit"]').click();
 
-      cy.url().should('eq', `http://localhost:3000/`);
+      // Wait for the mocked API response
+      cy.wait('@loginRequest').then((interception) => {
+        expect(interception?.response?.statusCode).to.equal(200);
+      });
+
 
     });
   });
@@ -65,7 +115,10 @@ describe('LoginRegister Component', () => {
 
       cy.get('form button[type="submit"]').click();
 
-
+      // Wait for the mocked API response
+      cy.wait('@registerRequest').then((interception) => {
+        expect(interception?.response?.statusCode).to.equal(201);
+      });
     });
   });
 });

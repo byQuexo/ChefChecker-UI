@@ -4,7 +4,7 @@ import React from "react";
 import { observer } from "mobx-react-lite";
 import rootStore from "@/app/utils/stores/globalStore";
 
-const FooterComponent = observer(() => {
+const FooterComponent: React.FC = observer(function FooterComponent() {
     const darkMode = rootStore.darkMode;
 
     return (
@@ -29,19 +29,7 @@ const FooterComponent = observer(() => {
 
             <div className="flex space-x-4 mb-4">
                 <a className={`${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Tim Guehnemann
-                </a>
-                <a className={`${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Hannah-Ann Nana-Hackman
-                </a>
-                <a className={`${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Manita Tamang
-                </a>
-                <a className={`${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Kacper Janas
-                </a>
-                <a className={`${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    David Werner
+                    KARTOFFEL
                 </a>
             </div>
 

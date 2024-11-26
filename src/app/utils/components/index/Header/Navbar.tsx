@@ -11,6 +11,7 @@ import globalStore from "@/app/utils/stores/globalStore";
 import ProfileButton from "@/app/utils/components/index/Header/ProfileButton";
 import RecipeFilter from "@/app/utils/components/index/Main/Filter";
 import {RecipeData} from "@/app/utils/stores/types";
+import FooterComponent from "@/app/utils/components/index/Footer/FooterComponent";
 
 
 const NavBar: React.FC = observer(function NavBar() {
@@ -121,6 +122,7 @@ const NavBar: React.FC = observer(function NavBar() {
                 filter={currentFilter}
                 recipeData={recipeData}
             />
+            <FooterComponent />
 </>);
 });
 

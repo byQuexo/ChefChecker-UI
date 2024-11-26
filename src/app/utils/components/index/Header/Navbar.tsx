@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import globalStore from "@/app/utils/stores/globalStore";
 import ProfileButton from "@/app/utils/components/index/Header/ProfileButton";
 import RecipeFilter from "@/app/utils/components/index/Main/Filter";
+import FooterComponent from "@/app/utils/components/index/Footer/FooterComponent";
 
 const NavBar: React.FC = observer(function NavBar() {
     const router = useRouter();
@@ -107,7 +108,8 @@ const NavBar: React.FC = observer(function NavBar() {
             <RecipeFilter
                 onFilterChange={handleFilterChange}
                 currentFilter={currentFilter} />
-    <FoodGrid searchTerm={searchTerm} filter={currentFilter}/>
+            <FoodGrid searchTerm={searchTerm} filter={currentFilter}/>
+            <FooterComponent />
 </>
 )
     ;

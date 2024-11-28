@@ -210,6 +210,7 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm, recip
                                 ? 'bg-gray-700 text-white disabled:bg-gray-600'
                                 : 'bg-gray-200 text-gray-800 disabled:bg-gray-100'
                         } disabled:cursor-not-allowed`}
+                        data-cy='pagination-previous'
                     >
                         Previous
                     </button>
@@ -236,6 +237,7 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm, recip
                                 ? 'bg-gray-700 text-white disabled:bg-gray-600'
                                 : 'bg-gray-200 text-gray-800 disabled:bg-gray-100'
                         } disabled:cursor-not-allowed`}
+                        data-cy="pagination-next"
                     >
                         Next
                     </button>

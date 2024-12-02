@@ -1,11 +1,12 @@
 "use client";
 
 import { observer } from 'mobx-react-lite';
-import { Filter, ChefHat, BookOpen, Pizza, Soup, Salad, Plus } from 'lucide-react';
+import { Filter, Heart, ChefHat, BookOpen, Pizza, Soup, Salad, Plus } from 'lucide-react';
 import React, { useState } from 'react';
 import rootStore from "@/app/utils/stores/globalStore";
 import { FilterOptions, RecipeData } from "@/app/utils/stores/types";
 import { getHTTP } from "@/app/utils/utils";
+import { useRouter } from 'next/navigation'; // Import useRouter
 
 interface FilterProps {
     onFilterChange: (filter: string) => void;
@@ -16,6 +17,7 @@ interface FilterProps {
 const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentFilter, onRecipeDataUpdate }) => {
     const darkMode = rootStore.darkMode;
     const userId = rootStore.userId;
+    const router = useRouter(); // Initialize router
 
     const categories = [
         { id: 'all', label: 'All Recipes', icon: BookOpen },
@@ -35,6 +37,8 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
         if (filter === 'my-recipes') {
             opts.userId = userId;
             opts.visibility = 'private';
+        } else if (filter === "favorites") {
+            opts.userId = userId;
         } else if (filter !== 'all') {
             opts.category = filter;
             if (userId) {
@@ -43,14 +47,26 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
         }
 
         try {
-            const response = await getHTTP().post('/api/recipes/search', JSON.stringify({
-                searchTerms: '',
-                opts: opts
-            }));
-            if (!response?.ok) {
-                throw new Error('Failed to fetch recipes');
+            let response = null;
+            let data = null;
+            if (!opts.favorites) {
+                response = await getHTTP().post('/api/recipes/search', JSON.stringify({
+                    searchTerms: '',
+                    opts: opts
+                }));
+                if (!response?.ok) {
+                    throw new Error('Failed to fetch recipes');
+                }
+                data = await response?.json();
+            } else {
+                response = await getHTTP().get(`/api/users/favorites/${userId}`);
+                if (!response?.ok) {
+                    throw new Error('Failed to fetch recipes');
+                }
+                data = await response?.json();
+                data.favorites = true;
             }
-            const data = await response?.json();
+
             onFilterChange(filter);
             onRecipeDataUpdate(data);
         } catch (error) {
@@ -61,7 +77,12 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
     // Helper function to get the current filter label
     const getCurrentFilterLabel = () => {
         if (currentFilter === 'my-recipes') return 'My Recipes';
+        if (currentFilter === 'favorites') return 'Favorites';
         return categories.find(c => c.id === currentFilter)?.label || '';
+    };
+
+    const handleCreateRecipe = () => {
+        router.push('/recipes/create');
     };
 
     return (
@@ -129,18 +150,33 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
                                 <ChefHat className="w-4 h-4 mr-2" />
                                 My Recipes
                             </button>
+
+                            <button
+                                onClick={() => handleFilterChange('favorites')}
+                                className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200
+                                    ${currentFilter === 'favorites'
+                                    ? (darkMode
+                                        ? 'bg-purple-600 text-white'
+                                        : 'bg-purple-500 text-white')
+                                    : (darkMode
+                                        ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                                        : 'bg-gray-100 hover:bg-gray-200 text-gray-800')}`}
+                            >
+                                <Heart className="w-4 h-4 mr-2" />
+                                Favorites
+                            </button>
                         </div>
                     )}
 
-                    <a
-                        href="http://localhost:3000/recipes/create"
+                    <button
+                        onClick={handleCreateRecipe}
                         className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200 ml-auto
                             ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' 
                             : 'bg-gray-100 hover:bg-gray-200 text-gray-800'}`}
                     >
                         <Plus className="w-4 h-4 mr-2" />
                         Create Recipe
-                    </a>
+                    </button>
                 </div>
 
                 {currentFilter !== 'all' && (

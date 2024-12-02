@@ -90,93 +90,99 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
             ${darkMode ? 'bg-gray-800' : 'bg-white'}`}
         >
             <div className="max-w-6xl mx-auto px-8 py-4">
-                <div className="flex flex-wrap items-center gap-4">
-                    <div className="relative">
-                        <button
-                            onClick={() => setIsOpen(!isOpen)}
-                            className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200
-                                ${darkMode
-                                ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                                : 'bg-gray-100 hover:bg-gray-200 text-gray-800'}`}
-                        >
-                            <Filter className="w-4 h-4 mr-2" />
-                            Categories
-                        </button>
-
-                        {isOpen && (
-                            <div className={`absolute z-10 mt-2 w-48 rounded-md shadow-lg 
-                                ${darkMode
-                                ? 'bg-gray-700 border border-gray-600'
-                                : 'bg-white border border-gray-200'}`}
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                    {/* Left section: Categories + Filters */}
+                    <div className="flex items-center gap-4">
+                        <div className="relative">
+                            <button
+                                onClick={() => setIsOpen(!isOpen)}
+                                className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200
+                                    ${darkMode
+                                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                                    : 'bg-gray-100 hover:bg-gray-200 text-gray-800'}`}
                             >
-                                <div className="py-1">
-                                    {categories.map((category) => (
-                                        <button
-                                            key={category.id}
-                                            onClick={() => {
-                                                handleFilterChange(category.id);
-                                                setIsOpen(false);
-                                            }}
-                                            className={`flex items-center w-full px-4 py-2 text-sm transition-colors
-                                                ${darkMode
-                                                ? 'text-gray-200 hover:bg-gray-600'
-                                                : 'text-gray-700 hover:bg-gray-100'}
-                                                ${currentFilter === category.id
-                                                ? (darkMode ? 'bg-gray-600' : 'bg-gray-100')
-                                                : ''}`}
-                                        >
-                                            <category.icon className="w-4 h-4 mr-2" />
-                                            {category.label}
-                                        </button>
-                                    ))}
+                                <Filter className="w-4 h-4 mr-2" />
+                                Categories
+                            </button>
+
+                            {isOpen && (
+                                <div className={`absolute z-10 mt-2 w-48 rounded-md shadow-lg 
+                                    ${darkMode
+                                    ? 'bg-gray-700 border border-gray-600'
+                                    : 'bg-white border border-gray-200'}`}
+                                >
+                                    <div className="py-1">
+                                        {categories.map((category) => (
+                                            <button
+                                                key={category.id}
+                                                onClick={() => {
+                                                    handleFilterChange(category.id);
+                                                    setIsOpen(false);
+                                                }}
+                                                className={`flex items-center w-full px-4 py-2 text-sm transition-colors
+                                                    ${darkMode
+                                                    ? 'text-gray-200 hover:bg-gray-600'
+                                                    : 'text-gray-700 hover:bg-gray-100'}
+                                                    ${currentFilter === category.id
+                                                    ? (darkMode ? 'bg-gray-600' : 'bg-gray-100')
+                                                    : ''}`}
+                                            >
+                                                <category.icon className="w-4 h-4 mr-2" />
+                                                {category.label}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
+                            )}
+                        </div>
+
+                        {userId && (
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => handleFilterChange('my-recipes')}
+                                    className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200
+                                        ${currentFilter === 'my-recipes'
+                                        ? (darkMode
+                                            ? 'bg-purple-600 text-white'
+                                            : 'bg-purple-500 text-white')
+                                        : (darkMode
+                                            ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                                            : 'bg-gray-100 hover:bg-gray-200 text-gray-800')}`}
+                                >
+                                    <ChefHat className="w-4 h-4 mr-2" />
+                                    My Recipes
+                                </button>
+
+                                <button
+                                    onClick={() => handleFilterChange('favorites')}
+                                    className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200
+                                        ${currentFilter === 'favorites'
+                                        ? (darkMode
+                                            ? 'bg-purple-600 text-white'
+                                            : 'bg-purple-500 text-white')
+                                        : (darkMode
+                                            ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                                            : 'bg-gray-100 hover:bg-gray-200 text-gray-800')}`}
+                                >
+                                    <Heart className="w-4 h-4 mr-2" />
+                                    Favorites
+                                </button>
                             </div>
                         )}
                     </div>
 
+                    {/* Right section: Create Recipe button */}
                     {userId && (
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => handleFilterChange('my-recipes')}
-                                className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200
-                                    ${currentFilter === 'my-recipes'
-                                    ? (darkMode
-                                        ? 'bg-purple-600 text-white'
-                                        : 'bg-purple-500 text-white')
-                                    : (darkMode
-                                        ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                                        : 'bg-gray-100 hover:bg-gray-200 text-gray-800')}`}
-                            >
-                                <ChefHat className="w-4 h-4 mr-2" />
-                                My Recipes
-                            </button>
-
-                            <button
-                                onClick={() => handleFilterChange('favorites')}
-                                className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200
-                                    ${currentFilter === 'favorites'
-                                    ? (darkMode
-                                        ? 'bg-purple-600 text-white'
-                                        : 'bg-purple-500 text-white')
-                                    : (darkMode
-                                        ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                                        : 'bg-gray-100 hover:bg-gray-200 text-gray-800')}`}
-                            >
-                                <Heart className="w-4 h-4 mr-2" />
-                                Favorites
-                            </button>
-                        </div>
+                        <button
+                            onClick={handleCreateRecipe}
+                            className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200
+                            ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                                : 'bg-gray-100 hover:bg-gray-200 text-gray-800'}`}
+                        >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Create Recipe
+                        </button>
                     )}
-
-                    <button
-                        onClick={handleCreateRecipe}
-                        className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200 ml-auto
-                            ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' 
-                            : 'bg-gray-100 hover:bg-gray-200 text-gray-800'}`}
-                    >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Create Recipe
-                    </button>
                 </div>
 
                 {currentFilter !== 'all' && (

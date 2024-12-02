@@ -9,17 +9,18 @@ import { getHTTP } from "../../utils/utils";
 const NewRecipePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const [darkMode, setDarkMode] = useState(false); 
+  const [darkMode, setDarkMode] = useState(false);
+  const userId = rootStore.userId
 
   useEffect(() => {
-    const initializeDarkMode = async () => {
+    const initPage = async () => {
       const isDarkMode = rootStore.darkMode;
       setDarkMode(isDarkMode);
       setLoading(false); 
     };
 
-    initializeDarkMode();
-  }, []);
+    initPage();
+  }, [router]);
 
   const [newRecipe, setNewRecipe] = useState({
     title: "",
@@ -93,7 +94,7 @@ const NewRecipePage: React.FC = () => {
     );
   }
 
-  return (
+ if (userId) return (
     <div
       className={`p-12 min-h-screen ${
         darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"
@@ -230,6 +231,9 @@ const NewRecipePage: React.FC = () => {
       </div>
     </div>
   );
+
+
+  router.push('/authentication')
 };
 
 export default NewRecipePage;

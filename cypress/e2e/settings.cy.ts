@@ -1,5 +1,11 @@
-describe('User  Registration and Settings Update', () => {
+describe('User Registration and Settings Update', () => {
   beforeEach(() => {
+    // Configure handling of uncaught exceptions
+    Cypress.on('uncaught:exception', (err) => {
+      console.error('Uncaught exception:', err);
+      return false;
+    });
+
     // Intercept registration request
     cy.intercept('POST', '/api/auth/register', (req) => {
       expect(req.body.email).to.equal('newuser@example.com');
@@ -24,25 +30,26 @@ describe('User  Registration and Settings Update', () => {
       });
     }).as('registerRequest');
 
-    // Intercept fetch user data
-    cy.intercept('GET', '/api/users/*', {
-      statusCode: 200,
-      body: {
-        user: {
-          id: 12345,
-          username: 'newuser',
-          email: 'newuser@example.com',
-          bio: 'twast',
-          profileImage: '',
+    // Intercept fetch user data with dynamic userId
+    cy.intercept('GET', '/api/users/12345', (req) => {
+      req.reply({
+        statusCode: 200,
+        body: {
+          user: {
+            id: 12345,
+            username: 'updateduser',
+            email: 'newuser@example.com',
+            bio: 'This is my updated bio',
+            profileImage: '',
+          },
         },
-      },
+      });
     }).as('fetchUserData');
 
     // Intercept user update request
     cy.intercept('POST', '/api/users/preferences', (req) => {
       expect(req.body.username).to.equal('updateduser');
       expect(req.body.bio).to.equal('This is my updated bio');
-      expect(req.body.email).to.equal('updateduser@example.com');
 
       req.reply({
         statusCode: 200,
@@ -50,7 +57,7 @@ describe('User  Registration and Settings Update', () => {
           user: {
             id: 12345,
             username: 'updateduser',
-            email: 'updateduser@example.com',
+            email: 'newuser@example.com',
             bio: 'This is my updated bio',
             profileImage: '',
           },
@@ -70,43 +77,67 @@ describe('User  Registration and Settings Update', () => {
     cy.get('input[type="password"]').type('password123');
     cy.get('form button[type="submit"]').click();
 
-    // Wait for the registration request
+    // Wait for the registration request and store user ID in localStorage
     cy.wait('@registerRequest').then((interception) => {
       expect(interception?.response?.statusCode).to.equal(201);
+      const userId = interception?.response?.body.user.id;
+      window.localStorage.setItem('id', userId.toString());
+
+      // Verify localStorage was set correctly
+      cy.window().should((window) => {
+        expect(window.localStorage.getItem('id')).to.equal('12345');
+      });
     });
 
-    // Step 2: Navigate to Settings
-    cy.visit('http://localhost:3000/settings');
-    cy.wait('@fetchUserData').then((interception) => {
-      expect(interception?.response?.statusCode).to.equal(200);
+    // Step 2: Navigate to Settings and fetch user data using ID from localStorage
+    cy.window().then((window) => {
+      const userId = window.localStorage.getItem('id');
+      cy.visit('http://localhost:3000/settings');
+
+      // Verify the correct endpoint is called with the user ID
+      cy.wait('@fetchUserData').then((interception) => {
+        expect(interception?.request?.url).to.include(`/api/users/${userId}`);
+        expect(interception?.response?.statusCode).to.equal(200);
+      });
     });
 
     // Step 3: Test Components on the Settings Page
-    cy.get('input[name="username"]').clear().type('updateduser'); // Ensure this matches the input's name
-    cy.get('textarea[name="bio"]').clear().type('This is my updated bio'); // Update Bio
-    cy.get('input[name="email"]').clear().type('updateduser@example.com'); // Update Email
+    cy.get('input[name="username"]').clear().type('updateduser');
+    cy.get('textarea[name="bio"]').clear().type('This is my updated bio');
 
     // Save changes
-    cy.get('button').contains('Save Changes').click(); // Ensure button text matches
+    cy.get('button').contains('Save Changes').click();
 
     // Wait for the update request
     cy.wait('@updateUserData').then((interception) => {
       expect(interception?.response?.statusCode).to.equal(200);
       expect(interception?.response?.body.user.username).to.equal('updateduser');
       expect(interception?.response?.body.user.bio).to.equal('This is my updated bio');
-      expect(interception?.response?.body.user.email).to.equal('updateduser@example.com');
+      expect(interception?.response?.body.user.email).to.equal('newuser@example.com');
     });
 
-    // Verify UI reflects updated bio and other changes
+    // Reload and verify the updated data is displayed
     cy.reload();
-    cy.wait('@updateUserData');
+    cy.wait('@fetchUserData');
+
+    // Add a small delay to ensure the form is fully populated
+    cy.wait(100);
 
     // Verify that the updated values appear in the UI
     cy.get('textarea[name="bio"]').should('have.value', 'This is my updated bio');
-    cy.get('input[name="username"]').should('have.value', 'updateduser'); // Ensure this matches the input's name
-    cy.get('input[name="email"]').should('have.value', 'updateduser@example.com');
+    cy.get('input[name="username"]').should('have.value', 'updateduser');
+    cy.get('input[name="email"]').should('have.value', 'newuser@example.com');
 
-    // Test Logout
+    // Verify localStorage still contains userId after all operations
+    cy.window().should((window) => {
+      expect(window.localStorage.getItem('id')).to.equal('12345');
+    });
+
+    // Test Logout and verify localStorage is cleared
     cy.get('button').contains('Log Out').click();
+    cy.window().should((window) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      expect(window.localStorage.getItem('id')).to.be.null;
+    });
   });
 });

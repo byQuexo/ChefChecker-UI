@@ -45,6 +45,7 @@ const EmailPasswordSection: React.FC<EmailPasswordSectionProps> = ({
                 cursor-not-allowed`}
               disabled={true}
               value={email}
+              name="email"
               onChange={(e) => setEmail(e.target.value)}
           />
         </div>
@@ -63,6 +64,7 @@ const EmailPasswordSection: React.FC<EmailPasswordSectionProps> = ({
                     ? 'bg-gray-700 border-gray-600 text-gray-100 focus:border-purple-500'
                     : 'bg-white border-gray-300 text-gray-900 focus:border-purple-500'}`}
                 value={password}
+                name="password"
                 onChange={(e) => setPassword(e.target.value)}
             />
             <button
@@ -100,7 +102,7 @@ const EmailPasswordSection: React.FC<EmailPasswordSectionProps> = ({
                     Saving...
                 </span>
               ) : (
-                  'Save Password'
+                  'Save Changes'
               )}
           </button>
         </div>

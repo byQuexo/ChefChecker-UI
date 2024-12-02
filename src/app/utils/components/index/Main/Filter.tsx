@@ -1,7 +1,7 @@
 "use client";
 
 import { observer } from 'mobx-react-lite';
-import { Filter, ChefHat, BookOpen, Pizza, Soup, Salad } from 'lucide-react';
+import { Filter, ChefHat, BookOpen, Pizza, Soup, Salad, Plus } from 'lucide-react';
 import React, { useState } from 'react';
 import rootStore from "@/app/utils/stores/globalStore";
 import { FilterOptions, RecipeData } from "@/app/utils/stores/types";
@@ -138,7 +138,7 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
                             ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' 
                             : 'bg-gray-100 hover:bg-gray-200 text-gray-800'}`}
                     >
-                        <ChefHat className="w-4 h-4 mr-2" />
+                        <Plus className="w-4 h-4 mr-2" />
                         Create Recipe
                     </a>
                 </div>

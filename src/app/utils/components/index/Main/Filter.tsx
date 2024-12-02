@@ -17,7 +17,7 @@ interface FilterProps {
 const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentFilter, onRecipeDataUpdate }) => {
     const darkMode = rootStore.darkMode;
     const userId = rootStore.userId;
-    const router = useRouter(); // Initialize router
+    const router = useRouter();
 
     const categories = [
         { id: 'all', label: 'All Recipes', icon: BookOpen },

@@ -1,4 +1,4 @@
-describe('User Registration and Settings Update', () => {
+describe('User  Registration and Settings Update', () => {
   beforeEach(() => {
     // Intercept registration request
     cy.intercept('POST', '/api/auth/register', (req) => {
@@ -81,13 +81,13 @@ describe('User Registration and Settings Update', () => {
       expect(interception?.response?.statusCode).to.equal(200);
     });
 
-    // Step 3: Update User Information
-    cy.get('input[name="Name"]').clear().type('updateduser');
-    cy.get('textarea[name="bio"]').clear().type('This is my updated bio'); // Use `textarea` for bio
-    cy.get('input[name="email"]').clear().type('updateduser@example.com');
+    // Step 3: Test Components on the Settings Page
+    cy.get('input[name="username"]').clear().type('updateduser'); // Ensure this matches the input's name
+    cy.get('textarea[name="bio"]').clear().type('This is my updated bio'); // Update Bio
+    cy.get('input[name="email"]').clear().type('updateduser@example.com'); // Update Email
 
     // Save changes
-    cy.get('button').contains('Save Changes').click(); // Ensure button selector matches
+    cy.get('button').contains('Save Changes').click(); // Ensure button text matches
 
     // Wait for the update request
     cy.wait('@updateUserData').then((interception) => {
@@ -97,13 +97,16 @@ describe('User Registration and Settings Update', () => {
       expect(interception?.response?.body.user.email).to.equal('updateduser@example.com');
     });
 
-    // Verify UI reflects updated bio
-    cy.reload(); // Reload to confirm changes persist
-    cy.wait('@fetchUserData');
+    // Verify UI reflects updated bio and other changes
+    cy.reload();
+    cy.wait('@updateUserData');
 
-    // Verify that the updated bio appears in the UI
+    // Verify that the updated values appear in the UI
     cy.get('textarea[name="bio"]').should('have.value', 'This is my updated bio');
-    cy.get('input[name="Name"]').should('have.value', 'updateduser');
+    cy.get('input[name="username"]').should('have.value', 'updateduser'); // Ensure this matches the input's name
     cy.get('input[name="email"]').should('have.value', 'updateduser@example.com');
+
+    // Test Logout
+    cy.get('button').contains('Log Out').click();
   });
 });

@@ -1,7 +1,5 @@
 // cypress/e2e/LoginRegister.cy.js
 
-import {nanoid} from "nanoid";
-
 describe('LoginRegister Component', () => {
   beforeEach(() => {
     // Intercept API calls with mocked responses

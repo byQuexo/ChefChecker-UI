@@ -132,8 +132,8 @@ const Settings: React.FC<SettingsProps> = observer(function Settings({ userId }:
   };
 
   const handleLogout = () => {
-    router.push('/');
     rootStore.clearStore()
+    router.push('/');
   };
 
   return (
@@ -168,6 +168,7 @@ const Settings: React.FC<SettingsProps> = observer(function Settings({ userId }:
                           ? 'bg-gray-700 border-gray-600 text-gray-100 focus:border-purple-500'
                           : 'bg-white border-gray-300 text-gray-900 focus:border-purple-500'}`}
                       value={name}
+                      name="username"
                       onChange={handleNameChange}
                   />
                 </div>
@@ -183,6 +184,7 @@ const Settings: React.FC<SettingsProps> = observer(function Settings({ userId }:
                           ? 'bg-gray-700 border-gray-600 text-gray-100 focus:border-purple-500'
                           : 'bg-white border-gray-300 text-gray-900 focus:border-purple-500'}`}
                       maxLength={200}
+                      name="bio"
                       value={bio}
                       onChange={handleBioChange}
                   />

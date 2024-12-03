@@ -1,12 +1,12 @@
 "use client";
 
 import { observer } from 'mobx-react-lite';
-import { Filter, Heart, ChefHat, BookOpen, Pizza, Soup, Salad, Plus } from 'lucide-react';
+import { Filter, ChefHat, BookOpen, Pizza, Soup, Salad, Plus } from 'lucide-react';
 import React, { useState } from 'react';
 import rootStore from "@/app/utils/stores/globalStore";
 import { FilterOptions, RecipeData } from "@/app/utils/stores/types";
 import { getHTTP } from "@/app/utils/utils";
-import { useRouter } from 'next/navigation'; // Import useRouter
+import { useRouter } from 'next/navigation';
 
 interface FilterProps {
     onFilterChange: (filter: string) => void;
@@ -37,8 +37,6 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
         if (filter === 'my-recipes') {
             opts.userId = userId;
             opts.visibility = 'private';
-        } else if (filter === "favorites") {
-            opts.userId = userId;
         } else if (filter !== 'all') {
             opts.category = filter;
             if (userId) {
@@ -77,7 +75,6 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
     // Helper function to get the current filter label
     const getCurrentFilterLabel = () => {
         if (currentFilter === 'my-recipes') return 'My Recipes';
-        if (currentFilter === 'favorites') return 'Favorites';
         return categories.find(c => c.id === currentFilter)?.label || '';
     };
 
@@ -91,7 +88,6 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
         >
             <div className="max-w-6xl mx-auto px-8 py-4">
                 <div className="flex items-center justify-between flex-wrap gap-4">
-                    {/* Left section: Categories + Filters */}
                     <div className="flex items-center gap-4">
                         <div className="relative">
                             <button
@@ -152,26 +148,10 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
                                     <ChefHat className="w-4 h-4 mr-2" />
                                     My Recipes
                                 </button>
-
-                                <button
-                                    onClick={() => handleFilterChange('favorites')}
-                                    className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200
-                                        ${currentFilter === 'favorites'
-                                        ? (darkMode
-                                            ? 'bg-purple-600 text-white'
-                                            : 'bg-purple-500 text-white')
-                                        : (darkMode
-                                            ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                                            : 'bg-gray-100 hover:bg-gray-200 text-gray-800')}`}
-                                >
-                                    <Heart className="w-4 h-4 mr-2" />
-                                    Favorites
-                                </button>
                             </div>
                         )}
                     </div>
 
-                    {/* Right section: Create Recipe button */}
                     {userId && (
                         <button
                             onClick={handleCreateRecipe}

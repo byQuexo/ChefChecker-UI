@@ -56,13 +56,6 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
                     throw new Error('Failed to fetch recipes');
                 }
                 data = await response?.json();
-            } else {
-                response = await getHTTP().get(`/api/users/favorites/${userId}`);
-                if (!response?.ok) {
-                    throw new Error('Failed to fetch recipes');
-                }
-                data = await response?.json();
-                data.favorites = true;
             }
 
             onFilterChange(filter);

@@ -58,15 +58,23 @@ const NavBar: React.FC = observer(function NavBar() {
         router.push('/settings')
     }
 
+    const handleMain = () => {
+        router.push('/')
+    }
+
     return (
         <>
             <nav className={`flex items-center justify-between p-4 transition-colors duration-200
                 ${darkMode
                 ? 'bg-gray-800 text-white'
                 : 'bg-white text-gray-800'}`}>
-                <div className="flex items-center">
+                <div className="flex items-center cursor-pointer" onClick={handleMain}>
                     <span className="text-xl font-bold flex items-center">
-                        <svg className="w-6 h-6 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <svg
+                            className="w-6 h-6 mr-2"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor">
                             <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -74,7 +82,7 @@ const NavBar: React.FC = observer(function NavBar() {
                                 d="M16 6v2m-4-2v2m-4-2v2M4 10h16M5 14h14l1 7H4l1-7z"
                             />
                         </svg>
-                        ChefChecker
+                            ChefChecker
                     </span>
                 </div>
                 <SearchBar onSearch={handleSearch}/>
@@ -95,23 +103,23 @@ const NavBar: React.FC = observer(function NavBar() {
                         )}
                     </button>
                     {userId ? (
-                        <ProfileButton userId={userId} darkMode={darkMode} handlePreferences={handlePreferences} /> ): (
+                        <ProfileButton userId={userId} darkMode={darkMode} handlePreferences={handlePreferences}/>) : (
 
-                            <button
+                        <button
                             onClick={handleLogin}
                             className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200
                                 ${darkMode
-                            ? 'bg-purple-600 hover:bg-purple-700 text-white'
-                            : 'bg-purple-500 hover:bg-purple-600 text-white'}`}
-                            >
-                        <LogIn className="w-4 h-4 mr-2"/>
-                        Login
-                            </button>
+                                ? 'bg-purple-600 hover:bg-purple-700 text-white'
+                                : 'bg-purple-500 hover:bg-purple-600 text-white'}`}
+                        >
+                            <LogIn className="w-4 h-4 mr-2"/>
+                            Login
+                        </button>
                     )
-                }
+                    }
 
-            </div>
-        </nav>
+                </div>
+            </nav>
             <RecipeFilter
                 onFilterChange={handleFilterChange}
                 currentFilter={currentFilter}
@@ -122,8 +130,8 @@ const NavBar: React.FC = observer(function NavBar() {
                 filter={currentFilter}
                 recipeData={recipeData}
             />
-            <FooterComponent />
-</>);
+            <FooterComponent/>
+        </>);
 });
 
 export default NavBar;

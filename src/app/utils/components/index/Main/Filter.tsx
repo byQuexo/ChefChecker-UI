@@ -137,6 +137,7 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
                                         : (darkMode
                                             ? 'bg-gray-700 hover:bg-gray-600 text-white'
                                             : 'bg-gray-100 hover:bg-gray-200 text-gray-800')}`}
+                                            data-testid="myrecipe-button"
                                 >
                                     <ChefHat className="w-4 h-4 mr-2" />
                                     My Recipes
@@ -146,39 +147,6 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
                     </div>
 
                     {userId && (
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => handleFilterChange('my-recipes')}
-                                className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200
-                                    ${currentFilter === 'my-recipes'
-                                    ? (darkMode
-                                        ? 'bg-purple-600 text-white'
-                                        : 'bg-purple-500 text-white')
-                                    : (darkMode
-                                        ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                                        : 'bg-gray-100 hover:bg-gray-200 text-gray-800')}`}
-                                data-testid="myrecipe-button"
-                            >
-                                <ChefHat className="w-4 h-4 mr-2" />
-                                My Recipes
-                            </button>
-
-                            <button
-                                onClick={() => handleFilterChange('favorites')}
-                                className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200
-                                    ${currentFilter === 'favorites'
-                                    ? (darkMode
-                                        ? 'bg-purple-600 text-white'
-                                        : 'bg-purple-500 text-white')
-                                    : (darkMode
-                                        ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                                        : 'bg-gray-100 hover:bg-gray-200 text-gray-800')}`}
-                            >
-                                <Heart className="w-4 h-4 mr-2" />
-                                Favorites
-                            </button>
-                        </div>
-
                         <button
                             onClick={handleCreateRecipe}
                             className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200

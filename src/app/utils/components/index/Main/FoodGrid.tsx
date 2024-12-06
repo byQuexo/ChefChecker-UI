@@ -120,6 +120,7 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm, recip
     const handlePageChange = (newPage: number) => {
         if (newPage >= 1 && newPage <= pagination.totalPages) {
             setPagination((prev) => ({ ...prev, currentPage: newPage }));
+            getAllRecipes(newPage);
         }
     };
 

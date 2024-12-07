@@ -137,7 +137,7 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
                                         : (darkMode
                                             ? 'bg-gray-700 hover:bg-gray-600 text-white'
                                             : 'bg-gray-100 hover:bg-gray-200 text-gray-800')}`}
-                                    data-testid="myrecipe-button"
+                                            data-testid="myrecipe-button"
                                 >
                                     <ChefHat className="w-4 h-4 mr-2" />
                                     My Recipes

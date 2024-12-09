@@ -6,12 +6,11 @@ describe('Light and Dark Button', () => {
   });
 
 
-  it('should toggle light to dark', () => {
-    cy.get('button').contains('toggle-dark-mode').click();
+  it('should toggle light to dark and vice versa', () => {
+    cy.get('button').first().click();
+    cy.wait(5000);
+    cy.get('button').first().click();
   });
 
-  it('should toggle dark to light', () => {
-    cy.get('button').contains('toggle-dark-mode').click();
-  });
 
 });

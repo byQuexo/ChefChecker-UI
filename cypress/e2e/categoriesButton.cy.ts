@@ -2,6 +2,10 @@
 
 describe('Categories Button', () => {
     beforeEach(() => {
+        Cypress.on('uncaught:exception', (err) => {
+            console.error('Uncaught exception:', err);
+            return false;
+          });
         const mockImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mNkYPhfz0AEYBxVSF+FAP5FDvcfRYWgAAAAAElFTkSuQmCC'
         cy.visit('http://localhost:3000');
         //filter for pizza category

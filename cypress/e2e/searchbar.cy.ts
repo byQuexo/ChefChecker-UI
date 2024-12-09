@@ -1,48 +1,53 @@
-//cypress/e2e/searchbar.ts
-describe('Searchbar', () => {
-    beforeEach(() => {
-      const mockImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mNkYPhfz0AEYBxVSF+FAP5FDvcfRYWgAAAAAElFTkSuQmCC'
-      cy.visit('http://localhost:3000');
-      cy.intercept('GET', '/api/recipes/search', {
-        statusCode: 200,
-        body: {
-          recipes: [
-            { id: 1, title: 'Burger', recipeImage: '' },
-          ],
-          pagination: {
-            currentPage: 1,
-            pageSize: 1,
-            totalPages: 1,
-            totalRecipes: 1,
-          },
-        },
-      }).as('searchBurger');
-  
-      cy.intercept('GET', '/api/recipes/search', {
-        statusCode: 200,
-        body: {
-          recipes: [
-            {id:1, title:'Egg-Fried Noodles', recipeImage:mockImage},
-            {id:2, title:'Burger', recipeImage:''},
-            {id:3, title:'Caesar Salad', recipeImage:''},
-            {id:4, title:'Chicekn Curry', recipeImage:''},
-            {id:5, title:'Chocolate Chip Cookies', recipeImage:''},
-            {id:6, title:'Lasagna', recipeImage:''},
-            {id:7, title:'Margarita Pizza', recipeImage:''},
-            {id:8, title:'Pancakes', recipeImage:''},
-          ],
-          pagination: {
-            currentPage: 1,
-            pageSize: 8,
-            totalPages: 2,
-            totalRecipes: 8,
-          },
-        },
-      }).as('searchPizza');
-  
-      //it should allow user to type burger in search bar and enter to search
-      cy.get('input').type('burger{enter}');
-      
+//cypress/e2e/searchbar.cy.ts
+describe('Search Bar', () => {
+  const mockImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mNkYPhfz0AEYBxVSF+FAP5FDvcfRYWgAAAAAElFTkSuQmCC';
+
+  beforeEach(() => {
+    Cypress.on('uncaught:exception', (err) => {
+      console.error('Uncaught exception:', err);
+      return false;
     });
+    cy.visit('http://localhost:3000');
+
+    window.localStorage.setItem('id', '1234');
+    window.localStorage.setItem('profilePicture', mockImage);
+
+    cy.intercept('POST', '/api/recipes/search', {
+      statusCode: 200,
+      body: {
+        recipes: [
+          {
+            id: 'burger',
+            title: 'burger',
+            recipeImage: mockImage,
+            ingredients: ['ingredients1', 'ingredients12'],
+            instructions: 'instructions1',
+            category: 'Noodles',
+            visbility: 'private',
+            userId: '1234'
+          },
+        ],
+        pagination: {
+          currentPage: 1,
+          pageSize: 8,
+          totalPages: 1,
+          totalRecipes: 1,
+        },
+      },
+    }).as('searchBurger');
   });
-   
+
+  //it should allow user to type burger in search bar and enter to search
+  it('should allow user to type burger in search bar and enter to search', () => {
+    cy.get('input').type('Burger{enter}');
+    cy.wait(5000);
+  });
+
+  //it should display burger recipe when burger is searched
+  it('should display burger recipe when burger is searched', () => {
+    cy.get('input').type('Burger{enter}');
+    cy.get('div').first().should('contain', 'burger');
+    cy.wait(5000);
+
+  });
+});

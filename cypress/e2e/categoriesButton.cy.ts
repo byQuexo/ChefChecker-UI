@@ -4,34 +4,46 @@ describe('Categories Button', () => {
     beforeEach(() => {
         const mockImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mNkYPhfz0AEYBxVSF+FAP5FDvcfRYWgAAAAAElFTkSuQmCC'
         cy.visit('http://localhost:3000');
-        cy.intercept('GET', '/api/recipes/search', {
-        statusCode: 200,
-        body: {
-            recipes: [
-            {id:1, title:'Egg-Fried Noodles', recipeImage:mockImage},
-            {id:2, title:'Burger', recipeImage:''},
-            {id:3, title:'Caesar Salad', recipeImage:''},
-            {id:4, title:'Chicekn Curry', recipeImage:''},
-            {id:5, title:'Chocolate Chip Cookies', recipeImage:''},
-            {id:6, title:'Lasagna', recipeImage:''},
-            {id:7, title:'Margarita Pizza', recipeImage:''},
-            {id:8, title:'Pancakes', recipeImage:''},
-            ],
-            pagination: {
-            currentPage: 1,
-            pageSize: 8,
-            totalPages: 2,
-            totalRecipes: 8,
+        //filter for pizza category
+        cy.intercept('POST', '/api/recipes/search', {
+            statusCode: 200,
+            body: {
+                recipes: [
+                    {
+                        id: 'pizza1',
+                        title: 'pizza1',
+                        recipeImage: mockImage,
+                        ingredients: ['ingredients1', 'ingredients12'],
+                        instructions: 'instructions1',
+                        category: 'Pizza',                    
+                        visibility: 'public',
+                        userId: '1234',
+                    },
+                    {
+                        id: 'pizza2',
+                        title: 'pizza2',
+                        recipeImage: mockImage,
+                        ingredients: ['ingredients1', 'ingredients12'],
+                        instructions: 'instructions1',
+                        category: 'Pizza',                    
+                        visibility: 'public',
+                        userId: '1234',
+                    },
+                ],
+                pagination: {
+                    currentPage: 1,
+                    pageSize: 8,
+                    totalPages: 1,
+                    totalRecipes: 1,
+                },
             },
-        },
-        }).as('searchPizza');
+        }).as('categoryPizza');
     });
-    
-    it('should display recipes when category is selected', () => {
-        cy.get('[data-cy="categories-button"]').click();
-        cy.get('[data-cy="categories-dropdown"]').select('Italian');
-        cy.get('[data-cy="categories-dropdown"]').should('have.value', 'Italian');
-        cy.get('[data-cy="categories-dropdown"]').select('All');
-        cy.get('[data-cy="categories-dropdown"]').should('have.value', 'All');
+
+    it('should display pizza when category is selected', () => {
+        cy.get('button').contains('Categories').click();
+        //select pizza category - the acyaul cateroies isna is open element so we need to click on the button
+        cy.get('button').contains('Pizza').click();
+        cy.get('div').first().should('contain', 'Pizza');
     });
 });

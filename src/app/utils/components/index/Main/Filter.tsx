@@ -124,7 +124,6 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
                                 </div>
                             )}
                         </div>
-
                         {userId && (
                             <div className="flex gap-2">
                                 <button
@@ -137,6 +136,7 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
                                         : (darkMode
                                             ? 'bg-gray-700 hover:bg-gray-600 text-white'
                                             : 'bg-gray-100 hover:bg-gray-200 text-gray-800')}`}
+                                    data-testid="myrecipe-button"
                                 >
                                     <ChefHat className="w-4 h-4 mr-2" />
                                     My Recipes
@@ -144,8 +144,8 @@ const RecipeFilter: React.FC<FilterProps> = observer(({ onFilterChange, currentF
                             </div>
                         )}
                     </div>
-
                     {userId && (
+
                         <button
                             onClick={handleCreateRecipe}
                             className={`flex items-center px-4 py-2 rounded-lg transition-colors duration-200

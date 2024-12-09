@@ -278,6 +278,7 @@ const FoodGrid: React.FC<Props> = observer(function FoodGrid({ searchTerm, recip
                             ${darkMode
                                 ? 'bg-gray-800 shadow-lg shadow-black/20 hover:shadow-purple-500/10'
                                 : 'bg-white shadow-md hover:shadow-lg shadow-gray-200/50'}`}
+                                data-testid="recipe-list"
                         >
                             {userId && (
                                 <button

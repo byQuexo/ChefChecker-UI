@@ -7,53 +7,35 @@ on:
   pull_request:
     branches:
       - master
+
 jobs:
   e2e:
     runs-on: ubuntu-latest
-
-    services:
-      nextjs:
-        image: node:16
-        ports:
-          - 3000:3000
-        options: >-
-          --health-cmd="curl --fail http://localhost:3000 || exit 1"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
-        volumes:
-          - .:/app
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Start Next.js server
+        run: |
+          npm run build
+          npm run start &
+          npx wait-on http://localhost:3000
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           NEXT_PUBLIC_CLIENT_TOKEN: ${{ secrets.NEXT_PUBLIC_CLIENT_TOKEN }}
-        command: >
-          sh -c "npm install && npm run dev"
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16' # Use the appropriate Node.js version
-
-      - name: Install Cypress
-        run: npm install cypress --save-dev
-
-      - name: Wait for Next.js to be ready
-        run: |
-          echo "Waiting for Next.js to start..."
-          for i in {1..30}; do
-            if curl -s http://localhost:3000; then
-              echo "Next.js is up!"
-              break
-            fi
-            echo "Next.js is not ready yet. Waiting..."
-            sleep 2
-          done
-
+      
       - name: Run Cypress tests
-        env:
-          CYPRESS_BASE_URL: http://localhost:3000
-        run: npx cypress run --headless --browser chrome --spec "cypress/integration/**/*.spec.js"
+        uses: cypress-io/github-action@v5
+        with:
+          browser: chrome
+          command: npx cypress run

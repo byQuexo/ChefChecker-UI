@@ -23,7 +23,6 @@ jobs:
           --health-retries=3
         volumes:
           - .:/app
-        working_dir: /app
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           NEXT_PUBLIC_CLIENT_TOKEN: ${{ secrets.NEXT_PUBLIC_CLIENT_TOKEN }}

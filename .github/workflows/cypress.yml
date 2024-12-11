@@ -36,7 +36,7 @@ jobs:
           NEXT_PUBLIC_CLIENT_TOKEN: ${{ secrets.NEXT_PUBLIC_CLIENT_TOKEN }}
       
       - name: Run Cypress tests
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         with:
           browser: chrome
           command: npx cypress run

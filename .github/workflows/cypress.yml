@@ -11,7 +11,8 @@ on:
 jobs:
   e2e:
     runs-on: ubuntu-latest
-    
+    environment: cypress
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
